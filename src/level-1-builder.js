@@ -210,25 +210,6 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
           vec3 weights = abs(vWorldNormal.xyz);
           weights /= dot(weights, vec3(1.0));
 
-          // vec2 coords1 = vWorldPosition.xy / size;
-          // vec2 coords2 = vWorldPosition.xz / size;
-          // vec2 coords3 = vWorldPosition.yz / size;
-          // vec3 diffuseColor1 = mapTexelToLinear(texture(map, coords1)).xyz;
-          // vec3 diffuseColor2 = mapTexelToLinear(texture(map, coords2)).xyz;
-          // vec3 diffuseColor3 = mapTexelToLinear(texture(map, coords3)).xyz;
-
-          // diffuseColor.xyz = diffuseColor1 * weights.z + diffuseColor2 * weights.y + diffuseColor3 * weights.x;
-
-          // {
-          //   vec3 mapN1 = texture(normalMap, coords1).xyz * 2.0 - 1.0;
-          //   vec3 mapN2 = texture(normalMap, coords2).xyz * 2.0 - 1.0;
-          //   vec3 mapN3 = texture(normalMap, coords3).xyz * 2.0 - 1.0;
-          //   vec3 mapN = normalize(mapN1 * weights.z + mapN2 * weights.y + mapN3 * weights.x);
-  
-          //   normal = normalize( vNormal );
-          //   normal = perturbNormal2Arb( -vViewPosition, normal, mapN, faceDirection );
-          // }
-
           float maxWeight = max(weights.x, max(weights.y, weights.z));
 
           vec2 coords;
@@ -241,17 +222,6 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
           }
 
           diffuseColor.xyz = mapTexelToLinear(texture(map, coords)).xyz;
-          // metalnessFactor = texture(metalnessMap, coords).x;
-          // roughnessFactor = texture(roughnessMap, coords).x;
-
-          // {
-          //   vec3 mapN = texture2D( normalMap, coords ).xyz * 2.0 - 1.0;
-          //   normal = normalize( vNormal );
-          //   normal = perturbNormal2Arb( -vViewPosition, normal, mapN, faceDirection );
-          //   // oop
-          // }
-          // diffuseColor.xyz = colXY * weights.z + colXZ * weights.y + colYZ * weights.x;
-          // diffuseColor.xyz = vec3(1.0);
 
           metalnessFactor = 0.1 * (1.0 - diffuseColor.x);
           roughnessFactor = diffuseColor.x * 0.5;
@@ -262,8 +232,8 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
           diffuseColor.xyz *= mix(0.25, 0.5, t.x);
 
           t = noised(floor(vWorldPosition.xyz / size) * 37.8953326 + vec3(0.05 * iTime));
-          totalEmissiveRadiance += smoothstep(0.3, 0.31, t.x) * c1 * 0.25;
-          diffuseColor.a = smoothstep(50.0, 0.0, fogDepth) * smoothstep(0.3, 0.31, t.x) * 0.5;
+          //totalEmissiveRadiance += smoothstep(0.3, 0.31, t.x) * c1 * 0.25;
+          // diffuseColor.a = smoothstep(50.0, 0.0, fogDepth) * smoothstep(0.3, 0.31, t.x) * 0.5;
 
         `);
         material.userData.shader = shader;
@@ -273,7 +243,6 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
         return albedo;
       };
 
-      // VIDEO HACK
       const csm = this.FindEntity('threejs').GetComponent('ThreeJSController').csm_;
       csm.setupMaterial(material);
 
@@ -281,14 +250,6 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
     }
 
     BuildHackModel_() {
-      // HACK
-      // const plane = new THREE.Mesh(
-      //     new THREE.PlaneGeometry(100, 100, 10, 10),
-      //     checkerboard);
-      // plane.castShadow = false;
-      // plane.receiveShadow = true;
-      // plane.rotation.x = -Math.PI / 2;
-      // this.scene_.add(plane);
       this.materials_.checkerboard = this.LoadMaterial_(
           'whitesquare.png', null, null, null);
       this.materials_.vintageTile = this.LoadMaterial_(
@@ -455,46 +416,6 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
           e.SetActive(false);
         }
       }
-      // {
-      //   const e = new entity.Entity();
-      //   e.AddComponent(new render_component.RenderComponent({
-      //     scene: this.params_.scene,
-      //     resourcePath: 'built-in.',
-      //     resourceName: 'box',
-      //     scale: new THREE.Vector3(10, 10, 10),
-      //     emissive: new THREE.Color(0x000000),
-      //     color: new THREE.Color(0xFFFFFF),
-      //   }));
-      //   e.AddComponent(new basic_rigid_body.BasicRigidBody({
-      //     // scene: this.params_.scene,
-      //     box: new THREE.Vector3(10, 10, 10),
-      //   }));
-  
-      //   this.Manager.Add(e);
-      //   e.SetPosition(new THREE.Vector3(0, 3, -20));
-      //   e.SetActive(false);
-      // }
-
-      // const walls = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-      // for (let i = 0; i < walls.length; ++i) {
-      //   const e = new entity.Entity();
-      //   e.AddComponent(new render_component.RenderComponent({
-      //     scene: this.params_.scene,
-      //     resourcePath: 'built-in.',
-      //     resourceName: 'ground',
-      //     scale: new THREE.Vector3(100, 10, 100),
-      //     emissive: new THREE.Color(0x000000),
-      //     color: new THREE.Color(0xFFFFFF),
-      //   }));
-      //   e.AddComponent(new basic_rigid_body.BasicRigidBody({
-      //     // scene: this.params_.scene,
-      //     box: new THREE.Vector3(100, 10, 100)
-      //   }));
-  
-      //   this.Manager.Add(e);
-      //   e.SetPosition(new THREE.Vector3(walls[i][0] * 100, 3, walls[i][1] * 100));
-      //   e.SetActive(false);
-      // }
 
       this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
         scene: this.params_.scene,

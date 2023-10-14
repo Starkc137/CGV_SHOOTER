@@ -13,7 +13,6 @@ import {health_component} from './health-component.js';
 import {render_component} from './render-component.js';
 import {basic_rigid_body} from './basic-rigid-body.js';
 import {target_entity} from './target-controller.js';
-import {shield_component} from './shield-component.js';
 import {attack_controller} from './attack-controller.js';
 
 
@@ -74,13 +73,7 @@ export const spawners = (() => {
           scale: 1.5,
         },
       }));
-      // e.AddComponent(new basic_rigid_body.CharacterRigidBody({
-      //   // scene: params.scene,
-      //   box: new THREE.Vector3(2, 2, 2),
-      // }));
       e.AddComponent(new kinematic_character_controller.KinematicCharacterController(this.params_));
-      // VIDEO HACK
-      e.AddComponent(new shield_component.ShieldComponent(this.params_));
       e.AddComponent(new attack_controller.AttackController({scene: this.params_.scene, timing: 0.2}));
       e.AddComponent(new health_component.HealthComponent({health: 100, maxHealth: 100}));
 

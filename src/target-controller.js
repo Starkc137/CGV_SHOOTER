@@ -105,13 +105,6 @@ export const target_entity = (() => {
         this.target_.traverse(c => {
           c.castShadow = true;
           c.receiveShadow = true;
-          // if (c.material) {
-          //   // c.material = new THREE.MeshStandardMaterial({
-          //   //   color: c.material.color,
-          //   //   roughness: 0.6,
-          //   //   metalness: 1.0,
-          //   // });
-          // }
           if (c.material && c.material.map) {
             c.material.map.encoding = THREE.sRGBEncoding;
           }
@@ -189,13 +182,13 @@ export const target_entity = (() => {
 
         this.Parent.SetQuaternion(_R);
 
-        if (toPlayer.length() < 20) {
+        if (toPlayer.length() < 10) {
           this.stateMachine_.SetState('shoot');
           this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
           return;
         }
 
-        const forwardVelocity = 2;
+        const forwardVelocity = 5;
         const strafeVelocity = 0;
 
         const forward = new THREE.Vector3(0, 0, -1);
@@ -217,11 +210,9 @@ export const target_entity = (() => {
           return;
         }
 
-        //const input = this.GetComponent('BasicCharacterControllerInput');
-        //this._UpdateAI(timeInSeconds);
+  
         this.stateMachine_.Update(timeInSeconds, this.input);
 
-        // HARDCODED
         if (this.stateMachine_._currentState._action) {
           this.Broadcast({
             topic: 'player.action',
@@ -259,10 +250,6 @@ export const target_entity = (() => {
         this.Parent.SetPosition(pos3);
       }
 
-      // controlObject.position.copy(pos);
-  
-      // this.Parent.SetPosition(controlObject.position);
-      // this.Parent.SetQuaternion(controlObject.quaternion);
     
   };
   

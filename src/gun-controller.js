@@ -76,27 +76,26 @@ export const gun_controller = (() => {
       whitesquare.wrapS = THREE.RepeatWrapping;
       whitesquare.wrapT = THREE.RepeatWrapping;
 
-      // const decalMaterial = new THREE.MeshStandardMaterial({map: whitesquare});
-      // const geo = new THREE.BoxGeometry(1, 1, 1);
+      const decalMaterial = new THREE.MeshStandardMaterial({map: whitesquare});
+      const geo = new THREE.BoxGeometry(1, 1, 1);
 
-      // let box = new THREE.Mesh(geo, decalMaterial);
-      // box.castShadow = false;
-      // box.receiveShadow = true;
-      // box.scale.set(0.0625, 0.0625, 0.5);
-      // box.position.set(0.25, -0.125, -0.25);
-      // this.group_.add(box);
+      let box = new THREE.Mesh(geo, decalMaterial);
+      box.castShadow = false;
+      box.receiveShadow = true;
+      box.scale.set(0.0625, 0.0625, 0.5);
+      box.position.set(0.25, -0.125, -0.25);
+      this.group_.add(box);
 
-      // box = new THREE.Mesh(geo, decalMaterial);
-      // box.castShadow = false;
-      // box.receiveShadow = true;
-      // box.scale.set(0.01, 0.01, 0.4);
-      // box.position.set(0.25, -0.09, -0.25);
-      // this.group_.add(box);
+      box = new THREE.Mesh(geo, decalMaterial);
+      box.castShadow = false;
+      box.receiveShadow = true;
+      box.scale.set(0.01, 0.01, 0.4);
+      box.position.set(0.25, -0.09, -0.25);
+      this.group_.add(box);
 
-      // this.Parent.Attributes.FPSCamera.group.add(this.group_);
+      this.Parent.Attributes.FPSCamera.group.add(this.group_);
 
 
-      // VIDEO HACK
       const poopgroup = new THREE.Group();
       const e = new entity.Entity();
       e.AddComponent(new render_component.RenderComponent({
@@ -129,60 +128,60 @@ export const gun_controller = (() => {
         }
       }
 
-      // const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
-      // const end = this.Parent.Left.clone().multiplyScalar(footOffset);
-      // end.add(new THREE.Vector3(0, -5, 0));
-      // end.add(this.Parent.Position);
+      const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
+      const end = this.Parent.Left.clone().multiplyScalar(footOffset);
+      end.add(new THREE.Vector3(0, -5, 0));
+      end.add(this.Parent.Position);
 
-      // const hits = physics.RayTest(this.Parent.Position, end).filter(
-      //     e => { e.Name != 'player'});
+      const hits = physics.RayTest(this.Parent.Position, end).filter(
+          e => { e.Name != 'player'});
 
-      // if (hits.length == 0) {
-      //   return;
-      // }
+      if (hits.length == 0) {
+        return;
+      }
 
-      // const textureLoader = new THREE.TextureLoader();
+      const textureLoader = new THREE.TextureLoader();
 
-      // const mesh = this.FindEntity(hits[0].name);
+      const mesh = this.FindEntity(hits[0].name);
 
-      // mesh.Attributes.Render.group.traverse(c => {
-      //   if (c.geometry) {
-      //     {
-      //       const position = hits[0].position.clone();
-      //       const eye = position.clone();
-      //       eye.add(hits[0].normal);
+      mesh.Attributes.Render.group.traverse(c => {
+        if (c.geometry) {
+          {
+            const position = hits[0].position.clone();
+            const eye = position.clone();
+            eye.add(hits[0].normal);
 
-      //       const eulerZ = new THREE.Euler();
-      //       eulerZ.setFromQuaternion(this.Parent.Quaternion);
-      //       eulerZ.x = 0;
-      //       eulerZ.y = 0;
-      //       const rotation = new THREE.Matrix4();
-      //       rotation.lookAt(eye, position, this.Parent.Forward);
-      //       // rotation.multiply(new THREE.Matrix4().makeRotationFromEuler(eulerZ));
-      //       const euler = new THREE.Euler();
-      //       euler.setFromRotationMatrix(rotation);
+            const eulerZ = new THREE.Euler();
+            eulerZ.setFromQuaternion(this.Parent.Quaternion);
+            eulerZ.x = 0;
+            eulerZ.y = 0;
+            const rotation = new THREE.Matrix4();
+            rotation.lookAt(eye, position, this.Parent.Forward);
+            // rotation.multiply(new THREE.Matrix4().makeRotationFromEuler(eulerZ));
+            const euler = new THREE.Euler();
+            euler.setFromRotationMatrix(rotation);
 
-      //       // console.log('pos: ' + position.y);
+            // console.log('pos: ' + position.y);
 
-      //       const decalMaterial = new THREE.MeshStandardMaterial( {
-      //         color: 0xFFFFFF,
-      //         map: textureLoader.load('./resources/footprint' + footIndex + '.png'),
-      //         transparent: true,
-      //         depthTest: true,
-      //         depthWrite: false,
-      //         polygonOffset: true,
-      //         polygonOffsetFactor: -4,
-      //       });
-      //       decalMaterial.map.encoding = THREE.sRGBEncoding;
+            const decalMaterial = new THREE.MeshStandardMaterial( {
+              color: 0xFFFFFF,
+              map: textureLoader.load('./resources/footprint' + footIndex + '.png'),
+              transparent: true,
+              depthTest: true,
+              depthWrite: false,
+              polygonOffset: true,
+              polygonOffsetFactor: -4,
+            });
+            decalMaterial.map.encoding = THREE.sRGBEncoding;
             
-      //       const decalScale = 1.0;
-      //       const m = new THREE.Mesh(
-      //           new DecalGeometry(c, position, euler, new THREE.Vector3(decalScale, decalScale, decalScale * 2) ), decalMaterial);
-      //       m.receiveShadow = true;
-      //       this.decals_.add(m);  
-      //     }
-      //   }
-      // });
+            const decalScale = 1.0;
+            const m = new THREE.Mesh(
+                new DecalGeometry(c, position, euler, new THREE.Vector3(decalScale, decalScale, decalScale * 2) ), decalMaterial);
+            m.receiveShadow = true;
+            this.decals_.add(m);  
+          }
+        }
+      });
     }
 
     UpdateGunRecoil_() {
@@ -214,23 +213,12 @@ export const gun_controller = (() => {
 
       this.UpdateGunRecoil_();
 
-      // VIDEO HACK
+   
       if (this.cooldown_ > 0.0) {
         return;
       }
 
-      // VIDEO HACK
-      // if (this.cooldown_ < 0.0) {
-      //   this.cooldown_ = DEFAULT_COOLDOWN;
-      //   const v1 = new THREE.Vector3(0.1, -0.25, -0.1);
-      //   v1.x = math.rand_int(-5, 5) * 0.05;
-      //   v1.y = math.rand_int(-5, 5) * 0.0625;
-      //   v1.z = math.rand_int(-5, 5) * 0.025 - 0.1w;
-      //   this.gun_.SetPosition(v1);
-      // }
-
-      // VIDEO HACK
-      // return;
+    
       const fired = input.mouseLeftReleased();
       if (fired) {
         this.cooldown_ = DEFAULT_COOLDOWN;
@@ -240,9 +228,6 @@ export const gun_controller = (() => {
         const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
         const end = this.Parent.Forward.clone();
         end.multiplyScalar(100);
-        // VIDEO: THIS WAS BROKEN
-        // I forgot to add the parent position to the forward vector, so all the shots were
-        // offset
         end.add(this.Parent.Position);
 
 
@@ -286,95 +271,6 @@ export const gun_controller = (() => {
             }
             continue;
           }
-      
-          mesh.Attributes.Render.group.traverse(c => {
-            if (c.geometry) {
-              if (0) {
-                const position = hits[i].position.clone();
-  
-                const rotationZ = new THREE.Quaternion();
-                rotationZ.setFromAxisAngle(new THREE.Vector3(0, 0, -1), Math.PI * Math.random());
-                const rotation = this.Parent.Quaternion.clone();
-                rotation.multiply(rotationZ);
-                const euler = new THREE.Euler();
-                euler.setFromQuaternion(rotation);
-    
-                const decalScale = 0.2;
-                const m = new THREE.Mesh(
-                    new DecalGeometry(c, position, euler, new THREE.Vector3(decalScale, decalScale, decalScale) ), decalMaterial);
-                this.decals_.add(m);
-              }
-  
-              if (0) {
-                {
-                  const geometry = new THREE.SphereGeometry( 0.25, 16, 16 );
-                  const material = new THREE.MeshBasicMaterial( { color: 0x00FF00 } );
-                  const sphere = new THREE.Mesh( geometry, material );
-                  sphere.position.copy(hits[i].position);
-                  this.params_.scene.add( sphere );  
-                }
-
-                const material = new THREE.LineBasicMaterial({
-                  color: 0xFF0000,
-                  linewidth: 5,
-                });
-                
-                const points = [tracer.Start, hits[i].position];
-                
-                const geometry = new THREE.BufferGeometry().setFromPoints( points );
-                
-                const line = new THREE.Line( geometry, material );
-                this.params_.scene.add( line );
-              }
-
-              // VIDEO HACK
-              if (1) {
-                const position = hits[i].position.clone();
-                const eye = position.clone();
-                eye.add(hits[i].normal);
-  
-                const rotationZ = new THREE.Matrix4();
-                rotationZ.makeRotationZ(Math.PI * Math.random());
-                const rotation = new THREE.Matrix4();
-                rotation.lookAt(eye, position, THREE.Object3D.DefaultUp);
-                rotation.multiply(rotationZ);
-                const euler = new THREE.Euler();
-                euler.setFromRotationMatrix(rotation);
-  
-                console.log('pos: ' + position.y);
-  
-                const decalMaterial = new THREE.MeshStandardMaterial( {
-                  color: 0xFFFFFF,
-                  // map: textureLoader.load('./resources/textures/bullet-albedo.png'),
-                  // normalMap: textureLoader.load('./resources/textures/bullet2-normal.jpg'),
-                  // normalScale: new THREE.Vector2(1, -1),
-                  transparent: true,
-                  depthTest: true,
-                  depthWrite: false,
-                  polygonOffset: true,
-                  polygonOffsetFactor: -4,
-                  roughness: 0.1,
-                  metalness: 0.1,
-                });
-                // decalMaterial.map.wrapS = THREE.RepeatWrapping;
-                // decalMaterial.map.wrapT = THREE.RepeatWrapping;
-                // decalMaterial.map.encoding = THREE.sRGBEncoding;
-  
-                decal_material.ModifyMaterial(decalMaterial, position);
-            
-                decalMaterial.customProgramCacheKey = () => {
-                  return 'decalMaterial';
-                };
-                
-                const decalScale = 10.0;
-                const m = new THREE.Mesh(
-                    new DecalGeometry(c, position, euler, new THREE.Vector3(decalScale, decalScale, decalScale * 2) ), decalMaterial);
-                m.receiveShadow = true;
-                this.decals_.add(m);  
-              }
-  
-            }
-          });
           return;
         }
       }

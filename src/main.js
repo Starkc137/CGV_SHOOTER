@@ -9,7 +9,7 @@ import {blaster} from './fx/blaster.js';
 import {ui_controller} from './ui-controller.js';
 
 
-class QuickFPS1 { 
+class CGVShooter { 
   constructor() {
     this._Initialize();
   }
@@ -108,15 +108,7 @@ class QuickFPS1 {
 let _APP = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
-  // const _Setup = () => {
-  //   Ammo().then(function(AmmoLib) {
-  //     Ammo = AmmoLib;
-  //     _APP = new QuickFPS1();
-  //   }); 
-  //   document.body.removeEventListener('click', _Setup);
-  // };
-  // document.body.addEventListener('click', _Setup);
   const AmmoLib = await Ammo();
   Ammo = AmmoLib;
-  _APP = new QuickFPS1();
+  _APP = new CGVShooter();
 });

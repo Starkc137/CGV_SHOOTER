@@ -204,17 +204,12 @@ export const ammojs_component = (() => {
 
       this.tmpRayOrigin_ = new Ammo.btVector3();
       this.tmpRayDst_ = new Ammo.btVector3();
-      // this.rayCallback_ = new Ammo.ClosestRayResultCallback(this.tmpRayOrigin_, this.tmpRayDst_);
       this.rayCallback_ = new Ammo.AllHitsRayResultCallback(this.tmpRayOrigin_, this.tmpRayDst_);
     }
 
     RayTest(start, end) {
       this.tmpRayOrigin_.setValue(start.x, start.y, start.z);
       this.tmpRayDst_.setValue(end.x, end.y, end.z);
-      // this.rayCallback_.get_m_rayFromWorld().setValue(start.x, start.y, start.z);
-      // this.rayCallback_.get_m_rayToWorld().setValue(end.x, end.y, end.z);
-      // this.rayCallback_.rayCallback.set_m_closestHitFraction(1);
-      // this.rayCallback_.rayCallback.set_m_collisionObject(null);
 
       this.tmpRayOrigin_.setValue(start.x, start.y, start.z);
       this.tmpRayDst_.setValue(end.x, end.y, end.z);

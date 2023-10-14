@@ -36,7 +36,6 @@ export const first_person_camera = (() => {
       this.headBobActive_ = false;
       this.headBobTimer_ = 0;
       this.headBobSpeed_ = 15;
-      // VIDEO HACK, original 0.01
       this.headBobHeight_ = 0.01;
       this.walkSpeed_ = 10;
       this.strafeSpeed_ = 10;
@@ -67,17 +66,17 @@ export const first_person_camera = (() => {
       this.group_.position.copy(this.translation_);
       this.group_.quaternion.copy(this.rotation_);
   
-      // const forward = new THREE.Vector3(0, 0, -1);
-      // forward.applyQuaternion(this.rotation_);
+      const forward = new THREE.Vector3(0, 0, -1);
+      forward.applyQuaternion(this.rotation_);
   
-      // forward.multiplyScalar(100);
-      // forward.add(this.translation_);
+      forward.multiplyScalar(100);
+      forward.add(this.translation_);
   
-      // const hits = this.FindEntity('physics').GetComponent('AmmoJSController').RayTest(this.translation_, forward);
+      const hits = this.FindEntity('physics').GetComponent('AmmoJSController').RayTest(this.translation_, forward);
 
-      // if (hits.length > 0) {
-      //   this.camera_.lookAt(hits[0].position);
-      // }
+      if (hits.length > 0) {
+        this.camera_.lookAt(hits[0].position);
+      }
     }
   
     updateHeadBob_(timeElapsedS) {

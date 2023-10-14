@@ -128,21 +128,6 @@ export const threejs_component = (() => {
       light.position.set(-20, 100, 20);
       light.target.position.set(0, 0, 0);
       light.intensity = 2.4;
-
-      // VIDEO HACK
-      // light.castShadow = true;
-      // light.shadow.bias = -0.001;
-      // light.shadow.mapSize.width = 4096;
-      // light.shadow.mapSize.height = 4096;
-      // light.shadow.camera.near = 1.0;
-      // light.shadow.camera.far = 500.0;
-      // light.shadow.camera.left = 32;
-      // light.shadow.camera.right = -32;
-      // light.shadow.camera.top = 32;
-      // light.shadow.camera.bottom = -32;
-      // this.scene_.add(light);
-      // this.scene_.add(light.target);
-
       const lightDir = light.position.clone();
       lightDir.normalize();
       lightDir.multiplyScalar(-1);
@@ -235,7 +220,6 @@ export const threejs_component = (() => {
       this.gammaPass_ = new ShaderPass(GammaCorrectionShader);
 
       this.composer_.addPass(this.opaquePass_);
-      // this.composer_.addPass(this.motionBlurPass_);
       this.composer_.addPass(this.gtaoPass_);
       this.composer_.addPass(this.bloomPass_);
       this.composer_.addPass(this.uiPass_);
@@ -329,23 +313,11 @@ export const threejs_component = (() => {
       this.radialBlur_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
       this.swapBuffers_();
 
-      // this.motionBlurPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
-      // this.swapBuffers_();
-
       this.fxaaPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
       this.swapBuffers_();
 
       this.gammaPass_.renderToScreen = true;
       this.gammaPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
-
-      // pass.renderToScreen = this.renderToScreen && this.isLastEnabledPass(i);
-      // pass.render(this.renderer, this.writeBuffer, this.readBuffer, deltaTime, maskActive);
-
-      // this.composer_.render();
-      // this.threejs_.autoClearColor = true;
-      // this.threejs_.render(this.scene_, this.camera_);
-      // this.threejs_.autoClearColor = false;
-      // this.threejs_.render(this.uiScene_, this.uiCamera_);
     }
 
     Update(timeElapsed) {

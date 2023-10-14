@@ -41,15 +41,11 @@ export const health_component = (() => {
       // bar.style.width = Math.floor(200 * healthAsPercentage) + 'px';
 
       // document.getElementById('stats-strength').innerText = this.stats_.strength;
-      // document.getElementById('stats-wisdomness').innerText = this.stats_.wisdomness;
-      // document.getElementById('stats-benchpress').innerText = this.stats_.benchpress;
-      // document.getElementById('stats-curl').innerText = this.stats_.curl;
-      // document.getElementById('stats-experience').innerText = this.stats_.experience;
+;
     }
 
     _ComputeLevelXPRequirement() {
       const level = this.stats_.level;
-      // Blah just something easy
       const xpRequired = Math.round(2 ** (level - 1) * 100);
       return xpRequired;
     }

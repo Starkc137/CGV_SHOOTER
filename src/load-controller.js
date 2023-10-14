@@ -72,7 +72,6 @@ export const load_controller = (() => {
           onLoad({scene: clone});
           return;
         }
-        // Silently fail, because screw you future me.
       }
     }
 

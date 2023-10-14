@@ -116,9 +116,6 @@ export const render_component = (() => {
 
         for (let m of materials) {
           if (m) {
-            // HACK
-            // m.depthWrite = true;
-            // m.transparent = false;
 
             if (this.params_.onMaterial) {
               this.params_.onMaterial(m);

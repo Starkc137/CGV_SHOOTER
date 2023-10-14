@@ -15,17 +15,6 @@ export const ui_controller = (() => {
 
       const messages = document.getElementById('top-left-ui-area');
       messages.style.visibility = 'hidden';
-
-      // VIDEO HACK
-      // window.setTimeout(() => {
-      //   messages.style.visibility = 'visible';
-      //   messages.classList.toggle('slideIn');
-
-      //   window.setTimeout(() => {
-      //     messages.classList.toggle('slideIn');
-      //     messages.classList.toggle('fadeOut');
-      //   }, 10000);
-      // }, 10000);
     }
 
     OnCharge_(msg) {
