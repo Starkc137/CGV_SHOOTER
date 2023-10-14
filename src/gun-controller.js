@@ -102,14 +102,14 @@ export const gun_controller = (() => {
       e.AddComponent(new render_component.RenderComponent({
         scene: this.Parent.Attributes.FPSCamera.group,
         // scene: poopgroup,
-        resourcePath: './resources/rifle/',
+        resourcePath: './resources/plasma_rifle/',
         resourceName: 'scene.gltf',
         scale: new THREE.Vector3(1, 1, 1),
         emissive: new THREE.Color(0x000000),
         color: new THREE.Color(0xFFFFFF),
       }));
       this.Manager.Add(e);
-      e.SetPosition(new THREE.Vector3(0.1, -0.25, -0.1));
+      e.SetPosition(new THREE.Vector3(0.45, -1.35, -0.5));
       e.SetActive(false);
       this.gun_ = e;
     }
@@ -235,7 +235,7 @@ export const gun_controller = (() => {
       if (fired) {
         this.cooldown_ = DEFAULT_COOLDOWN;
 
-        this.LoadSound_('shot.ogg');
+        this.LoadSound_('escopeta.mp3');
 
         const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
         const end = this.Parent.Forward.clone();

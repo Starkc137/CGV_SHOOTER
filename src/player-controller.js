@@ -15,7 +15,9 @@ export const player_controller = (() => {
 
     InitComponent() {
       this.RegisterHandler_('physics.collision', (m) => { this.OnCollision_(m); });
+      
     }
+
 
     InitEntity() {
       this.decceleration_ = new THREE.Vector3(-0.0005, -0.0001, -1);

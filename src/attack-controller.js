@@ -48,7 +48,15 @@ export const attack_controller = (() => {
       this.timeElapsed_ = m.time;
 
       if (oldTiming < this.params_.timing && this.timeElapsed_ >= this.params_.timing) {
-        this.LoadSound_('shot.ogg');
+        this.LoadSound_('laser.ogg');
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
+        const end = this.Parent.Forward.clone();
+        end.multiplyScalar(10.0); // changed from 100.0
+        end.add(this.Parent.Position);
+        ////////////////////////////////////////////////////////////////////
 
         const target = this.FindEntity('player').Position.clone();
 
@@ -77,13 +85,44 @@ export const attack_controller = (() => {
         tracer.TotalLife = 1.0;
         tracer.Width = 0.125;
 
+
+        // Check for hits on the player
         // const hits = physics.RayTest(this.Parent.Position, end);
 
         // if (hits.length == 0) {
         //   return;
         // }
 
-        // const mesh = this.FindEntity(hits[0].name);
+        // for (let i = 0; i < hits.length; ++i) {
+        //   const hitEntity = this.FindEntity(hits[i].name);
+          
+        //   // Check if the hit entity is the player
+        //   if (Attributes.NPC) {
+        //     hitEntity.Broadcast({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
+        //     return;
+        //     }
+        //     continue;
+        //   }
+          const hits = physics.RayTest(this.Parent.Position, end);
+
+          if (hits.length == 0) {
+            return;
+          }
+  
+          for (let i = 0; i < hits.length; ++i) {
+            const mesh = this.FindEntity(hits[i].name);
+  
+            if (mesh.Attributes.NPC) {
+              if (mesh.Attributes.Stats.health > 0) {
+                mesh.Broadcast({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
+                return;
+              }
+              continue;
+            }
+
+            return;
+          }
+
       }
     }
   };

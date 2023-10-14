@@ -27,6 +27,18 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
+@keyframes game-over-anim{
+  from{
+    opacity: 0.0;
+    visibility: hidden;
+  }
+  to{
+    opacity: 0.5;
+    visibility: visible;
+  }
+
+}
+
 .row {
   width: 100%;
   height: 100%;
@@ -75,6 +87,9 @@ body {
   height: 100px;
   padding: 10px 10px;
   border-radius: 10px;
+  font-size: 100px;
+  color: white;
+  text-align: center;
 }
 
 .top-left-ui {
@@ -92,6 +107,30 @@ body {
   width: 100%;
   flex-direction: column;
   justify-content: flex-end;
+}
+
+.game-over-layout {
+  opacity: 0.0;
+  visibility: hidden;
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.game-over-layout-active{
+  opacity: 1.0;
+  visibility: visible;
+  transition: opacity 0.5s ease-in-out;
+}
+.game-over-text{
+  font-size: 5em;
+  color: white;
+  text-shadow: 8px 8px black;
 }
 
 .ui-glow {

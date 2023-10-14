@@ -14,6 +14,31 @@ export const level_1_builder = (() => {
     constructor(params) {
       super();
 
+      const self = this; 
+
+      const startingMinutes = 5;
+      let time = startingMinutes * 60;
+
+      const countdownEl = document.getElementById('countdown');
+
+      setInterval(updateCountdown, 1000);
+
+      function updateCountdown () {
+        const minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+
+        countdownEl.innerHTML = `${minutes}:${seconds}`;
+        time--;
+        if (time < 0) {
+          time = 0;
+        
+          self.GameOver();
+        }
+        
+      }
+
       this.params_ = params;
       this.spawned_ = false;
       this.materials_ = {};
@@ -50,7 +75,6 @@ export const level_1_builder = (() => {
         // roughnessMap: roughness,
       });
 
-      // VIDEO HACK
       material.onBeforeCompile = (shader) => {
         shader.uniforms.iTime = { value: 0.0 };
   
@@ -319,7 +343,40 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
       this.currentTime_ = 0.0;
     }
 
+    GameOver() {
+
+      
+     // Display loading screen
+      const loadingScreen = document.createElement('div');
+      loadingScreen.style.position = 'absolute';
+      loadingScreen.style.top = '0';
+      loadingScreen.style.left = '0';
+      loadingScreen.style.width = '100%';
+      loadingScreen.style.height = '100%';
+      loadingScreen.style.backgroundColor = '#000';
+      loadingScreen.style.opacity = '0.5';
+      loadingScreen.style.display = 'flex';
+      loadingScreen.style.justifyContent = 'center';
+      loadingScreen.style.alignItems = 'center';
+      loadingScreen.innerHTML = 'GAME-OVER';
+      loadingScreen.style.fontSize = '200px';
+      document.body.appendChild(loadingScreen);
+    
+      // Load and initialize the next level here
+      //const levelBuilder = new level_2_builder.Level2Builder({});
+      //levelBuilder.LoadMaterial_('albedo.jpg', 'normal.jpg', 'roughness.jpg', 'metalness.jpg');
+      //levelBuilder.BuildHackModel_();
+      //levelBuilder.Update(0.0);
+     
+      
+      // Hide loading screen
+      //document.body.removeChild(loadingScreen);
+      //console.log('Moving to next level...');
+    }
+    
+    
     Update(timeElapsed) {
+
       this.currentTime_ += timeElapsed;
 
       if (this.materials_.checkerboard && this.materials_.checkerboard.userData.shader) {
@@ -352,50 +409,6 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
       this.Manager.Add(e, 'ground');
       e.SetPosition(new THREE.Vector3(0, -12, 0));
       e.SetActive(false);
-
-      // VIDEO HACK
-      const models = [
-        ['anubis', 10, [-1, -1]],
-        ['robot', 1, [-1, 1]],
-        ['buddha', 10, [1, -1]],
-        ['skull', 10, [1, 1]]
-      ];
-      for (let i = 0; i < models.length; ++i) {
-        const pos = new THREE.Vector3(models[i][2][0] * 50, 0, models[i][2][1 ] * 50);
-        {
-          const e = new entity.Entity();
-          e.AddComponent(new render_component.RenderComponent({
-            scene: this.params_.scene,
-            resourcePath: 'built-in.',
-            resourceName: 'box',
-            scale: new THREE.Vector3(20, 30, 20),
-            emissive: new THREE.Color(0x000000),
-            color: new THREE.Color(0x808080),
-          }));
-          e.AddComponent(new basic_rigid_body.BasicRigidBody({
-            // scene: this.params_.scene,
-            box: new THREE.Vector3(20, 30, 20),
-          }));
-    
-          this.Manager.Add(e);
-          e.SetPosition(pos);
-          e.SetActive(false);  
-        }
-
-        const e = new entity.Entity();
-        e.AddComponent(new render_component.RenderComponent({
-          scene: this.params_.scene,
-          resourcePath: './resources/models/' + models[i][0] + '/',
-          resourceName: 'scene.glb',
-          scale: new THREE.Vector3(models[i][1], models[i][1], models[i][1]),
-          emissive: new THREE.Color(0x000000),
-          color: new THREE.Color(0xFFFFFF),
-        }));
-
-        this.Manager.Add(e);
-        e.SetPosition(new THREE.Vector3(pos.x, pos.y + 15, pos.z));
-        e.SetActive(false);
-      }
 
       for (let x = -2; x <= 2; ++x) {
         for (let y = -2; y <= 2; ++y) {
@@ -486,6 +499,8 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
       this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
         scene: this.params_.scene,
         position: new THREE.Vector3(0, 2, 5)
+
+
       });
 
       // this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
@@ -529,7 +544,6 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
 
       // this.spawned_.push(e);
     }
-
     
   };
 
@@ -538,3 +552,7 @@ vec3 pal( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )
   };
 
 })();
+
+
+
+

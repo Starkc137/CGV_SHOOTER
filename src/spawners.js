@@ -69,9 +69,9 @@ export const spawners = (() => {
       e.AddComponent(new target_entity.TargetCharacterController({
         scene: this.params_.scene,
         model: {
-          path: './resources/quaternius/Enemies/',
-          name: 'Enemy_Large_Gun.glb',
-          scale: 2,
+          path: './resources/daSource/Characters/glTF/',
+          name: 'Character_Enemy.gltf',
+          scale: 1.5,
         },
       }));
       // e.AddComponent(new basic_rigid_body.CharacterRigidBody({
@@ -81,10 +81,10 @@ export const spawners = (() => {
       e.AddComponent(new kinematic_character_controller.KinematicCharacterController(this.params_));
       // VIDEO HACK
       e.AddComponent(new shield_component.ShieldComponent(this.params_));
-      // e.AddComponent(new attack_controller.AttackController({scene: this.params_.scene, timing: 0.25}));
+      e.AddComponent(new attack_controller.AttackController({scene: this.params_.scene, timing: 0.2}));
       e.AddComponent(new health_component.HealthComponent({health: 100, maxHealth: 100}));
 
-      this.Manager.Add(e);
+      this.Manager.Add(e, 'target');
       e.SetPosition(params.position);
       e.SetActive(true);
 

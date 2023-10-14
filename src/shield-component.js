@@ -368,6 +368,14 @@ vec2 voronoiBorder(vec3 uv){
       this.group_.quaternion.copy(msg.value);
     }
 
+    OnDeath_(msg) {
+      this.dead_ = true;
+      this.model_.material.uniforms.dissolveTime.value = this.model_.material.uniforms.time.value;
+  
+      // Emit an event to indicate that the shield has been destroyed
+      this.EmitEvent_('shield.destroyed', { target: this.Parent });
+    }
+
     OnHit_(msg) {
       if (this.dead_) {
         return;

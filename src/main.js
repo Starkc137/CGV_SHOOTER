@@ -1,9 +1,7 @@
 import {entity_manager} from './entity-manager.js';
 import {entity} from './entity.js';
-
 import {load_controller} from './load-controller.js';
 import {spawners} from './spawners.js';
-
 import {spatial_hash_grid} from './spatial-hash-grid.js';
 import {threejs_component} from './threejs-component.js';
 import {ammojs_component} from './ammojs-component.js';
@@ -11,7 +9,7 @@ import {blaster} from './fx/blaster.js';
 import {ui_controller} from './ui-controller.js';
 
 
-class QuickFPS1 {
+class QuickFPS1 { 
   constructor() {
     this._Initialize();
   }
