@@ -1,6 +1,6 @@
-import {THREE} from './three-defs.js';
+import {THREE} from './threeD.js';
 
-import {entity} from './entity.js';
+import {entity} from './customEntity.js';
 
 
 export const mesh_rigid_body = (() => {
@@ -13,7 +13,7 @@ export const mesh_rigid_body = (() => {
       // this.params_.scene.add(this.group_);
     }
 
-    Destroy() {
+    removeEntity() {
       this.group_.traverse(c => {
         if (c.material) {
           c.material.dispose();
@@ -23,10 +23,10 @@ export const mesh_rigid_body = (() => {
         }
       });
       this.params_.scene.remove(this.group_);
-      this.FindEntity('physics').GetComponent('AmmoJSController').RemoveRigidBody(this.body_);
+      this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
     }
 
-    InitEntity() {
+    InitializeEntity() {
       this._LoadModels();
     }
   
@@ -56,7 +56,7 @@ export const mesh_rigid_body = (() => {
         }
       });
 
-      this.Broadcast({
+      this.BroadcastEvent({
           topic: 'loaded.collision',
           value: this.target_,
       });
@@ -67,22 +67,22 @@ export const mesh_rigid_body = (() => {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
 
-      this.body_ = this.FindEntity('physics').GetComponent('AmmoJSController').CreateMesh(
+      this.body_ = this.FindEntity('physics').GetComponent('CustomAmmoJSController').CreateMesh(
           target, pos, quat, {name: this.Parent.Name});
 
       const s = new THREE.Sphere();
       const b = new THREE.Box3().setFromObject(target);
       b.getBoundingSphere(s);
-      this.Parent.Attributes.roughRadius = s.radius;
+      this.Parent.Attributes.roughRadius = s.radiusvalue;
 
       this.OnTransformChanged_();
-      this.Broadcast({topic: 'physics.loaded'});
+      this.BroadcastEvent({topic: 'physics.loaded'});
     }
 
-    InitComponent() {
-      this.RegisterHandler_('loaded.collision', (m) => this.OnMeshLoaded_(m) );
-      this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
-      this.RegisterHandler_('update.rotation', (m) => { this.OnRotation_(m); });
+    InitializeComponent() {
+      this.addEventHandler_('loaded.collision', (m) => this.OnMeshLoaded_(m) );
+      this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
+      this.addEventHandler_('update.rotation', (m) => { this.OnRotation_(m); });
     }
 
     OnPosition_(m) {

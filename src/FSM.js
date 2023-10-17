@@ -1,5 +1,3 @@
-
-
 export const finite_state_machine = (() => {
 
   class FiniteStateMachine {

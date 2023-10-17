@@ -1,4 +1,4 @@
-import {entity} from "./entity.js";
+import {entity} from "./customEntity.js";
 import {passes} from './passes.js';
 
 
@@ -20,7 +20,7 @@ export const player_input = (() => {
       this.params_ = params;
     }
 
-    InitEntity() {
+    InitializeEntity() {
       this.current_ = {
         leftButton: false,
         rightButton: false,

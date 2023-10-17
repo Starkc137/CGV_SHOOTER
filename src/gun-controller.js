@@ -1,6 +1,6 @@
-import {THREE, DecalGeometry} from './three-defs.js';
+import {THREE, DecalGeometry} from './threeD.js';
 
-import {entity} from './entity.js';
+import {entity} from './customEntity.js';
 
 import {render_component} from './render-component.js';
 import {decal_material} from './decal-material.js';
@@ -13,8 +13,8 @@ export const gun_controller = (() => {
 
   const DEFAULT_COOLDOWN = 0.5;
 
-  function ExpImpulse(x, k) {
-    const h = k * x;
+  function ExpImpulse(x, key) {
+    const h = key * x;
     return h * Math.exp(1.0 - h);
   }
 
@@ -33,7 +33,7 @@ export const gun_controller = (() => {
       this.cooldown_ = 0.0;
     }
 
-    Destroy() {
+    removeEntity() {
       this.group_.traverse(c => {
         if (c.material) {
           c.material.dispose();
@@ -45,14 +45,14 @@ export const gun_controller = (() => {
       this.group_.parent.remove(this.group_);
     }
 
-    InitComponent() {
-      this.RegisterHandler_('render.visible', (m) => { this.OnVisible_(m); });
-      this.RegisterHandler_('fps.step', (m) => { this.OnStep_(m); });
+    InitializeComponent() {
+      this.addEventHandler_('render.visible', (m) => { this.OnVisible_(m); });
+      this.addEventHandler_('fps.step', (m) => { this.OnStep_(m); });
       this.SetPass(passes.GUN);
     }
 
     LoadSound_(soundName) {
-      const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
+      const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
 
       const sound1 = new THREE.PositionalAudio(threejs.listener_);
 
@@ -68,8 +68,8 @@ export const gun_controller = (() => {
       });
     }
 
-    InitEntity() {
-      const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
+    InitializeEntity() {
+      const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
       const textureLoader = new THREE.TextureLoader();
       const whitesquare = textureLoader.load('./resources/textures/whitesquare.png');
       whitesquare.anisotropy = threejs.getMaxAnisotropy();
@@ -97,8 +97,8 @@ export const gun_controller = (() => {
 
 
       const poopgroup = new THREE.Group();
-      const e = new entity.Entity();
-      e.AddComponent(new render_component.RenderComponent({
+      const e = new entity.CustomEntity();
+      e.addEntityComponent(new render_component.RenderComponent({
         scene: this.Parent.Attributes.FPSCamera.group,
         // scene: poopgroup,
         resourcePath: './resources/plasma_rifle/',
@@ -109,7 +109,7 @@ export const gun_controller = (() => {
       }));
       this.Manager.Add(e);
       e.SetPosition(new THREE.Vector3(0.45, -1.35, -0.5));
-      e.SetActive(false);
+      e.setActiveStatus(false);
       this.gun_ = e;
     }
 
@@ -128,7 +128,7 @@ export const gun_controller = (() => {
         }
       }
 
-      const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
+      const physics = this.FindEntity('physics').GetComponent('CustomAmmoJSController');
       const end = this.Parent.Left.clone().multiplyScalar(footOffset);
       end.add(new THREE.Vector3(0, -5, 0));
       end.add(this.Parent.Position);
@@ -225,7 +225,7 @@ export const gun_controller = (() => {
 
         this.LoadSound_('escopeta.mp3');
 
-        const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
+        const physics = this.FindEntity('physics').GetComponent('CustomAmmoJSController');
         const end = this.Parent.Forward.clone();
         end.multiplyScalar(100);
         end.add(this.Parent.Position);
@@ -266,7 +266,7 @@ export const gun_controller = (() => {
 
           if (mesh.Attributes.NPC) {
             if (mesh.Attributes.Stats.health > 0) {
-              mesh.Broadcast({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
+              mesh.BroadcastEvent({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
               return;
             }
             continue;

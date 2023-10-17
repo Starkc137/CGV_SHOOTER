@@ -17,7 +17,7 @@ GTAO implementation based on Asylum Tutorials work [here](https://github.com/asy
 - Code cleanup
 - Fix loop unroll
 - separable blur
-- Manually assignable rotation and radius offsets
+- Manually assignable rotation and radiusvalue offsets
 - expose offset variables explicitly
 - toggle normal map / alpha map support
 - Use depth texture
@@ -29,7 +29,7 @@ GTAO implementation based on Asylum Tutorials work [here](https://github.com/asy
 
 **Features**
 - See toystory presentation on sample reuse.
-- Manually assignable rotation and radius offsets
+- Manually assignable rotation and radiusvalue offsets
 
 **Performance Knobs**
 - option to generate normal / use normal in upscale

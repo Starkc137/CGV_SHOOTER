@@ -10,13 +10,13 @@ class Frustum {
     data = data || {};
 
     this.vertices = {
-      near: [
+      nearPlane: [
         new three.Vector3(),
         new three.Vector3(),
         new three.Vector3(),
         new three.Vector3()
       ],
-      far: [
+      farPlane: [
         new three.Vector3(),
         new three.Vector3(),
         new three.Vector3(),
@@ -40,26 +40,26 @@ class Frustum {
     inverseProjectionMatrix.copy(projectionMatrix).invert();
 
 
-    // 3 --- 0  vertices.near/far order
+    // 3 --- 0  vertices.nearPlane/farPlane order
     // |     |
     // 2 --- 1
     // clip space spans from [-1, 1]
 
-    this.vertices.near[ 0 ].set( 1, 1, - 1 );
-    this.vertices.near[ 1 ].set( 1, - 1, - 1 );
-    this.vertices.near[ 2 ].set( - 1, - 1, - 1 );
-    this.vertices.near[ 3 ].set( - 1, 1, - 1 );
-    this.vertices.near.forEach( function ( v ) {
+    this.vertices.nearPlane[ 0 ].set( 1, 1, - 1 );
+    this.vertices.nearPlane[ 1 ].set( 1, - 1, - 1 );
+    this.vertices.nearPlane[ 2 ].set( - 1, - 1, - 1 );
+    this.vertices.nearPlane[ 3 ].set( - 1, 1, - 1 );
+    this.vertices.nearPlane.forEach( function ( v ) {
 
       v.applyMatrix4( inverseProjectionMatrix );
 
     } );
 
-    this.vertices.far[ 0 ].set( 1, 1, 1 );
-    this.vertices.far[ 1 ].set( 1, - 1, 1 );
-    this.vertices.far[ 2 ].set( - 1, - 1, 1 );
-    this.vertices.far[ 3 ].set( - 1, 1, 1 );
-    this.vertices.far.forEach( function ( v ) {
+    this.vertices.farPlane[ 0 ].set( 1, 1, 1 );
+    this.vertices.farPlane[ 1 ].set( 1, - 1, 1 );
+    this.vertices.farPlane[ 2 ].set( - 1, - 1, 1 );
+    this.vertices.farPlane[ 3 ].set( - 1, 1, 1 );
+    this.vertices.farPlane.forEach( function ( v ) {
 
       v.applyMatrix4( inverseProjectionMatrix );
 
@@ -97,7 +97,7 @@ class Frustum {
 
         for ( let j = 0; j < 4; j ++ ) {
 
-          cascade.vertices.near[ j ].copy( this.vertices.near[ j ] );
+          cascade.vertices.nearPlane[ j ].copy( this.vertices.nearPlane[ j ] );
 
         }
 
@@ -105,7 +105,7 @@ class Frustum {
 
         for ( let j = 0; j < 4; j ++ ) {
 
-          cascade.vertices.near[ j ].lerpVectors( this.vertices.near[ j ], this.vertices.far[ j ], breaks[ i - 1 ] );
+          cascade.vertices.nearPlane[ j ].lerpVectors( this.vertices.nearPlane[ j ], this.vertices.farPlane[ j ], breaks[ i - 1 ] );
 
         }
 
@@ -115,7 +115,7 @@ class Frustum {
 
         for ( let j = 0; j < 4; j ++ ) {
 
-          cascade.vertices.far[ j ].copy( this.vertices.far[ j ] );
+          cascade.vertices.farPlane[ j ].copy( this.vertices.farPlane[ j ] );
 
         }
 
@@ -123,7 +123,7 @@ class Frustum {
 
         for ( let j = 0; j < 4; j ++ ) {
 
-          cascade.vertices.far[ j ].lerpVectors( this.vertices.near[ j ], this.vertices.far[ j ], breaks[ i ] );
+          cascade.vertices.farPlane[ j ].lerpVectors( this.vertices.nearPlane[ j ], this.vertices.farPlane[ j ], breaks[ i ] );
 
         }
 
@@ -137,12 +137,12 @@ class Frustum {
 
     for ( var i = 0; i < 4; i ++ ) {
 
-      target.vertices.near[ i ]
-      .copy( this.vertices.near[ i ] )
+      target.vertices.nearPlane[ i ]
+      .copy( this.vertices.nearPlane[ i ] )
       .applyMatrix4( cameraMatrix );
 
-      target.vertices.far[ i ]
-      .copy( this.vertices.far[ i ] )
+      target.vertices.farPlane[ i ]
+      .copy( this.vertices.farPlane[ i ] )
       .applyMatrix4( cameraMatrix );
 
     }
@@ -410,7 +410,7 @@ class CSMHelper extends three.Group {
       const frustum = frustums[ i ];
       const light = lights[ i ];
       const shadowCam = light.shadow.camera;
-      const farVerts = frustum.vertices.far;
+      const farVerts = frustum.vertices.farPlane;
 
       const cascadeLine = cascadeLines[ i ];
       const cascadePlane = cascadePlanes[ i ];
@@ -433,13 +433,13 @@ class CSMHelper extends three.Group {
       shadowLineGroup.updateMatrixWorld( true );
       this.attach( shadowLineGroup );
 
-      shadowLine.box.min.set( shadowCam.bottom, shadowCam.left, - shadowCam.far );
-      shadowLine.box.max.set( shadowCam.top, shadowCam.right, - shadowCam.near );
+      shadowLine.box.min.set( shadowCam.bottom, shadowCam.left, - shadowCam.farPlane );
+      shadowLine.box.max.set( shadowCam.top, shadowCam.right, - shadowCam.nearPlane );
 
     }
 
-    const nearVerts = mainFrustum.vertices.near;
-    const farVerts = mainFrustum.vertices.far;
+    const nearVerts = mainFrustum.vertices.nearPlane;
+    const farVerts = mainFrustum.vertices.farPlane;
     frustumLinePositions.setXYZ( 0, farVerts[ 0 ].x, farVerts[ 0 ].y, farVerts[ 0 ].z );
     frustumLinePositions.setXYZ( 1, farVerts[ 3 ].x, farVerts[ 3 ].y, farVerts[ 3 ].z );
     frustumLinePositions.setXYZ( 2, farVerts[ 2 ].x, farVerts[ 2 ].y, farVerts[ 2 ].z );
@@ -502,10 +502,10 @@ class CSM {
       const light = new three.DirectionalLight( 0xffffff, this.lightIntensity );
       light.castShadow = true;
       light.shadow.mapSize.width = this.shadowMapSize;
-      light.shadow.mapSize.height = this.shadowMapSize;
+      light.shadow.mapSize.heightvalue = this.shadowMapSize;
 
-      light.shadow.camera.near = this.lightNear;
-      light.shadow.camera.far = this.lightFar;
+      light.shadow.camera.nearPlane = this.lightNear;
+      light.shadow.camera.farPlane = this.lightFar;
       light.shadow.bias = this.shadowBias;
 
       this.parent.add( light );
@@ -535,10 +535,10 @@ class CSM {
       const frustum = this.frustums[ i ];
 
       // Get the two points that represent that furthest points on the frustum assuming
-      // that's either the diagonal across the far plane or the diagonal across the whole
+      // that's either the diagonal across the farPlane plane or the diagonal across the whole
       // frustum itself.
-      const nearVerts = frustum.vertices.near;
-      const farVerts = frustum.vertices.far;
+      const nearVerts = frustum.vertices.nearPlane;
+      const farVerts = frustum.vertices.farPlane;
       const point1 = farVerts[ 0 ];
       let point2;
       if ( point1.distanceTo( farVerts[ 2 ] ) > point1.distanceTo( nearVerts[ 2 ] ) ) {
@@ -556,9 +556,9 @@ class CSM {
 
         // expand the shadow extents by the fade margin if fade is enabled.
         const camera = this.camera;
-        const far = Math.max( camera.far, this.maxFar );
-        const linearDepth = frustum.vertices.far[ 0 ].z / ( far - camera.near );
-        const margin = 0.25 * Math.pow( linearDepth, 2.0 ) * ( far - camera.near );
+        const farPlane = Math.max( camera.farPlane, this.maxFar );
+        const linearDepth = frustum.vertices.farPlane[ 0 ].z / ( farPlane - camera.nearPlane );
+        const margin = 0.25 * Math.pow( linearDepth, 2.0 ) * ( farPlane - camera.nearPlane );
 
         squaredBBWidth += margin;
 
@@ -577,32 +577,32 @@ class CSM {
   getBreaks() {
 
     const camera = this.camera;
-    const far = Math.min( camera.far, this.maxFar );
+    const farPlane = Math.min( camera.farPlane, this.maxFar );
     this.breaks.length = 0;
 
     switch ( this.mode ) {
 
       case 'uniform':
-        uniformSplit( this.cascades, camera.near, far, this.breaks );
+        uniformSplit( this.cascades, camera.nearPlane, farPlane, this.breaks );
         break;
       case 'logarithmic':
-        logarithmicSplit( this.cascades, camera.near, far, this.breaks );
+        logarithmicSplit( this.cascades, camera.nearPlane, farPlane, this.breaks );
         break;
       case 'practical':
-        practicalSplit( this.cascades, camera.near, far, 0.5, this.breaks );
+        practicalSplit( this.cascades, camera.nearPlane, farPlane, 0.5, this.breaks );
         break;
       case 'custom':
         if ( this.customSplitsCallback === undefined ) console.error( 'CSM: Custom split scheme callback not defined.' );
-        this.customSplitsCallback( this.cascades, camera.near, far, this.breaks );
+        this.customSplitsCallback( this.cascades, camera.nearPlane, farPlane, this.breaks );
         break;
 
     }
 
-    function uniformSplit( amount, near, far, target ) {
+    function uniformSplit( amount, nearPlane, farPlane, target ) {
 
       for ( let i = 1; i < amount; i ++ ) {
 
-        target.push( ( near + ( far - near ) * i / amount ) / far );
+        target.push( ( nearPlane + ( farPlane - nearPlane ) * i / amount ) / farPlane );
 
       }
 
@@ -610,11 +610,11 @@ class CSM {
 
     }
 
-    function logarithmicSplit( amount, near, far, target ) {
+    function logarithmicSplit( amount, nearPlane, farPlane, target ) {
 
       for ( let i = 1; i < amount; i ++ ) {
 
-        target.push( ( near * ( far / near ) ** ( i / amount ) ) / far );
+        target.push( ( nearPlane * ( farPlane / nearPlane ) ** ( i / amount ) ) / farPlane );
 
       }
 
@@ -622,12 +622,12 @@ class CSM {
 
     }
 
-    function practicalSplit( amount, near, far, lambda, target ) {
+    function practicalSplit( amount, nearPlane, farPlane, lambda, target ) {
 
       _uniformArray.length = 0;
       _logArray.length = 0;
-      logarithmicSplit( amount, near, far, _logArray );
-      uniformSplit( amount, near, far, _uniformArray );
+      logarithmicSplit( amount, nearPlane, farPlane, _logArray );
+      uniformSplit( amount, nearPlane, farPlane, _uniformArray );
 
       for ( let i = 1; i < amount; i ++ ) {
 
@@ -655,8 +655,8 @@ class CSM {
       _cameraToLightMatrix.multiplyMatrices( light.shadow.camera.matrixWorldInverse, camera.matrixWorld );
       frustums[ i ].toSpace( _cameraToLightMatrix, _lightSpaceFrustum );
 
-      const nearVerts = _lightSpaceFrustum.vertices.near;
-      const farVerts = _lightSpaceFrustum.vertices.far;
+      const nearVerts = _lightSpaceFrustum.vertices.nearPlane;
+      const farVerts = _lightSpaceFrustum.vertices.farPlane;
       _bbox.makeEmpty();
       for ( let j = 0; j < 4; j ++ ) {
 
@@ -712,12 +712,12 @@ class CSM {
         oldBeforeCompile(shader);
       }
 
-      const far = Math.min( self.camera.far, self.maxFar );
+      const farPlane = Math.min( self.camera.farPlane, self.maxFar );
       self.getExtendedBreaks( breaksVec2 );
 
       shader.uniforms.CSM_cascades = { value: breaksVec2 };
-      shader.uniforms.cameraNear = { value: self.camera.near };
-      shader.uniforms.shadowFar = { value: far };
+      shader.uniforms.cameraNear = { value: self.camera.nearPlane };
+      shader.uniforms.shadowFar = { value: farPlane };
 
       shaders.set( material, shader );
 
@@ -728,7 +728,7 @@ class CSM {
 
   updateUniforms() {
 
-    const far = Math.min( this.camera.far, this.maxFar );
+    const farPlane = Math.min( this.camera.farPlane, this.maxFar );
     const shaders = this.shaders;
 
     shaders.forEach( function ( shader, material ) {
@@ -737,8 +737,8 @@ class CSM {
 
         const uniforms = shader.uniforms;
         this.getExtendedBreaks( uniforms.CSM_cascades.value );
-        uniforms.cameraNear.value = this.camera.near;
-        uniforms.shadowFar.value = far;
+        uniforms.cameraNear.value = this.camera.nearPlane;
+        uniforms.shadowFar.value = farPlane;
 
       }
 

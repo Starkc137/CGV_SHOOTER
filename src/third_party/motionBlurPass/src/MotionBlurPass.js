@@ -68,7 +68,7 @@ export class MotionBlurPass extends Pass {
 		if ( val === false ) {
 
 			this._prevPosMap.clear();
-			this._cameraMatricesNeedInitializing = true;
+			this._cameraMatricesNeedInitializeializing = true;
 
 		}
 
@@ -109,7 +109,7 @@ export class MotionBlurPass extends Pass {
 		this._currentFrameMod = 0;
 		this._frustum = new Frustum();
 		this._projScreenMatrix = new Matrix4();
-		this._cameraMatricesNeedInitializing = true;
+		this._cameraMatricesNeedInitializeializing = true;
 
 		this._prevCamProjection = new Matrix4();
 		this._prevCamWorldInverse = new Matrix4();
@@ -139,11 +139,11 @@ export class MotionBlurPass extends Pass {
 
 	}
 
-	setSize( width, height ) {
+	setSize( width, heightvalue ) {
 
 		const renderTargetScale = this.renderTargetScale;
 		const velocityBuffer = this._velocityBuffer;
-		velocityBuffer.setSize( width * renderTargetScale, height * renderTargetScale );
+		velocityBuffer.setSize( width * renderTargetScale, heightvalue * renderTargetScale );
 
 	}
 
@@ -399,11 +399,11 @@ export class MotionBlurPass extends Pass {
 
 		// reinitialize the camera matrices to the current transform because if
 		// the pass has been disabled then the matrices will be out of date
-		if ( this._cameraMatricesNeedInitializing ) {
+		if ( this._cameraMatricesNeedInitializeializing ) {
 
 			this._prevCamWorldInverse.copy( camera.matrixWorldInverse );
 			this._prevCamProjection.copy( camera.projectionMatrix );
-			this._cameraMatricesNeedInitializing = false;
+			this._cameraMatricesNeedInitializeializing = false;
 
 		}
 

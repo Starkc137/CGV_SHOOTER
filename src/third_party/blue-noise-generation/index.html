@@ -212,12 +212,12 @@
 			function onWindowResize() {
 
 				var width = window.innerWidth;
-				var height = window.innerHeight;
+				var heightvalue = window.innerHeight;
 
-				camera.aspect = width / height;
+				camera.aspectRatio = width / heightvalue;
 				camera.updateProjectionMatrix();
 
-				renderer.setSize( width, height );
+				renderer.setSize( width, heightvalue );
 				renderer.setPixelRatio( window.devicePixelRatio );
 
 			}

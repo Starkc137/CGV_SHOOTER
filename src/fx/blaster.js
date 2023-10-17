@@ -1,6 +1,6 @@
-import {THREE} from '../three-defs.js';
+import {THREE} from '../threeD.js';
 
-import {entity} from '../entity.js';
+import {entity} from '../customEntity.js';
 import {math} from '../math.js';
 import {render_order} from '../render-order.js';
 
@@ -34,10 +34,10 @@ void main() {
     constructor(params) {
       super();
       this.params_ = params;
-      this.Init_();
+      this.Initialize_();
     }
 
-    Init_(params) {
+    Initialize_(params) {
       const uniforms = {
         diffuse: {
           value: new THREE.TextureLoader().load(this.params_.texture)

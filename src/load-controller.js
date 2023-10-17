@@ -1,6 +1,6 @@
-import {THREE, FBXLoader, GLTFLoader, SkeletonUtils} from './three-defs.js';
+import {THREE, FBXLoader, GLTFLoader, SkeletonUtils} from './threeD.js';
 
-import {entity} from "./entity.js";
+import {entity} from "./customEntity.js";
 
 
 export const load_controller = (() => {
@@ -41,7 +41,7 @@ export const load_controller = (() => {
           this.sounds_[name] = {
             buffer: buf
           };
-          const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
+          const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
           const s = new THREE.PositionalAudio(threejs.listener_);
           s.setBuffer(buf);
           s.setRefDistance(10);
@@ -50,7 +50,7 @@ export const load_controller = (() => {
           this.playing_.push(s);
         });
       } else {
-        const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
+        const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
         const s = new THREE.PositionalAudio(threejs.listener_);
         s.setBuffer(this.sounds_[name].buffer);
         s.setRefDistance(25);

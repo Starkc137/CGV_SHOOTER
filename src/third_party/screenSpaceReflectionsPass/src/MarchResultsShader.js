@@ -291,7 +291,7 @@ export const MarchResultsShader = {
 			float rayZMax = prevZMaxEstimate;
 			float stepped = 0.0;
 
-			// Glossy Variable Init
+			// Glossy Variable Initialize
 			#if GLOSSY_MODE == 1 // SIMPLE_GLOSSY
 			float searchRadius = 0.0;
 
@@ -355,7 +355,7 @@ export const MarchResultsShader = {
 				#if GLOSSY_MODE == 0
 				PQK += dPQK;
 				#else
-				// Take a larger stride based on the search radius for our glossiness
+				// Take a larger stride based on the search radiusvalue for our glossiness
 				PQK += ( dPQK / pixelStride ) * ( max( searchRadius, pixelStride ) );
 				#endif
 
@@ -376,7 +376,7 @@ export const MarchResultsShader = {
 				// should be negative.
 				if ( rayZMin > 0.0 ) break;
 
-				// TODO: the glossiness paths should convert glossiness search radius from world space in to screen space
+				// TODO: the glossiness paths should convert glossiness search radiusvalue from world space in to screen space
 				#if GLOSSY_MODE == 0 // NO_GLOSSY
 
 				intersected = doesIntersect( rayZMax, rayZMin, hitUV );
@@ -386,14 +386,14 @@ export const MarchResultsShader = {
 				float rayDist = abs( ( ( rayZMax - csOrig.z ) / ( csEndPoint.z - csOrig.z ) ) * rayLength );
 				searchRadius = rayDist * roughness;
 
-				vec3 radius = searchVector * searchRadius;
-				radius.xy /= resolution.x / resolution.y;
-				radius.xy *= PQK.w;
-				intersected = doesIntersect( rayZMax + radius.z, rayZMin + radius.z, hitUV + radius.xy );
+				vec3 radiusvalue = searchVector * searchRadius;
+				radiusvalue.xy /= resolution.x / resolution.y;
+				radiusvalue.xy *= PQK.w;
+				intersected = doesIntersect( rayZMax + radiusvalue.z, rayZMin + radiusvalue.z, hitUV + radiusvalue.xy );
 
 				if (intersected) {
 
-					hitUV = hitUV + radius.xy;
+					hitUV = hitUV + radiusvalue.xy;
 
 				}
 
@@ -404,18 +404,18 @@ export const MarchResultsShader = {
 
 				bool didIntersect = false;
 				float total = 0.0;
-				vec3 radius;
+				vec3 radiusvalue;
 				#pragma unroll_loop_start
 				for ( int i = 0; i < 6; i ++ ) {
 
-					radius = searchVectors[ i ] * searchRadius;
-					radius.xy /= resolution.x / resolution.y;
-					radius.xy *= PQK.w;
+					radiusvalue = searchVectors[ i ] * searchRadius;
+					radiusvalue.xy /= resolution.x / resolution.y;
+					radiusvalue.xy *= PQK.w;
 
-					didIntersect = doesIntersect( rayZMax + radius.z, rayZMin + radius.z, hitUV + radius.xy );
+					didIntersect = doesIntersect( rayZMax + radiusvalue.z, rayZMin + radiusvalue.z, hitUV + radiusvalue.xy );
 					if ( didIntersect ) {
 
-						accumulatedColor += texture2D( colorBuffer, hitUV + radius.xy ).rgb;
+						accumulatedColor += texture2D( colorBuffer, hitUV + radiusvalue.xy ).rgb;
 						intersected = true;
 						total += 1.0;
 
@@ -436,8 +436,8 @@ export const MarchResultsShader = {
 				float rayDist = abs( ( ( rayZMax - csOrig.z ) / ( csEndPoint.z - csOrig.z ) ) * rayLength );
 				searchRadius = rayDist * roughness * 3.0;
 
-				float radius = searchRadius * PQK.w;
-				float lod = radius * 10.0;
+				float radiusvalue = searchRadius * PQK.w;
+				float lod = radiusvalue * 10.0;
 
 				intersected = doesIntersect( rayZMax, rayZMin, hitUV, int( ceil( lod ) ), thickness + searchRadius );
 

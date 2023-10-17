@@ -1,4 +1,4 @@
-import {entity} from "./entity.js";
+import {entity} from "./customEntity.js";
 
 
 export const health_component = (() => {
@@ -9,16 +9,16 @@ export const health_component = (() => {
       this.stats_ = {...params};
     }
 
-    InitComponent() {
-      this.RegisterHandler_(
+    InitializeComponent() {
+      this.addEventHandler_(
           'shot.hit', (m) => this.OnDamage_(m));
-      this.RegisterHandler_(
+      this.addEventHandler_(
           'health.add-experience', (m) => this.OnAddExperience_(m));
 
       this.UpdateUI_();
     }
 
-    InitEntity() {
+    InitializeEntity() {
       this.Parent.Attributes.Stats = this.stats_;
     }
 
@@ -67,7 +67,7 @@ export const health_component = (() => {
           'level-up-spawner').GetComponent('LevelUpComponentSpawner');
       spawner.Spawn(this.Parent.Position);
 
-      this.Broadcast({
+      this.BroadcastEvent({
           topic: 'health.levelGained',
           value: this.stats_.level,
       });
@@ -76,7 +76,7 @@ export const health_component = (() => {
     }
 
     OnDeath_() {
-      this.Broadcast({
+      this.BroadcastEvent({
           topic: 'health.death',
       });
     }
@@ -86,7 +86,7 @@ export const health_component = (() => {
         this.OnDeath_();
       }
 
-      this.Broadcast({
+      this.BroadcastEvent({
         topic: 'health.update',
         health: this.stats_.health,
         maxHealth: this.stats_.maxHealth,

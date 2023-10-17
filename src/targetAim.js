@@ -1,17 +1,17 @@
-import {THREE} from './three-defs.js';
-import {entity} from './entity.js';
+import {THREE} from './threeD.js';
+import {entity} from './customEntity.js';
 
 
-export const crosshair = (() => {
+export const aim = (() => {
 
-  class Crosshair extends entity.Component {
+  class Aim extends entity.Component {
     constructor(params) {
       super();
       this.params_ = params;
       this.visible_ = true;
     }
 
-    Destroy() {
+    removeEntity() {
       if (!this.sprite_) {
         this.visible_ = false;
         return;
@@ -37,12 +37,12 @@ export const crosshair = (() => {
       }
     }
 
-    InitEntity() {
+    InitializeEntity() {
       this.OnCreateSprite_();
     }
 
     OnDeath_() {
-      this.Destroy();
+      this.removeEntity();
     }
 
     OnCreateSprite_() {
@@ -54,7 +54,7 @@ export const crosshair = (() => {
       this.element_ = document.createElement('canvas');
       this.context2d_ = this.element_.getContext('2d');
       this.context2d_.canvas.width = size;
-      this.context2d_.canvas.height = size;
+      this.context2d_.canvas.heightvalue = size;
 
       this.context2d_.fillStyle = "#FFFFFF";
       this.context2d_.lineWidth = 5;
@@ -103,7 +103,7 @@ export const crosshair = (() => {
       this.sprite_.scale.set(4, 4, 1)
       this.sprite_.position.set(0, 5, 0);
 
-      const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
+      const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
       threejs.uiScene_.add(this.sprite_);
     }
 
@@ -111,15 +111,15 @@ export const crosshair = (() => {
       if (!this.sprite_) {
         return;
       }
-      const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
+      const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
       const camera = threejs.camera_;
 
       const ndc = new THREE.Vector3(0, 0, -10);
 
-      this.sprite_.scale.set(0.15, 0.15 * camera.aspect, 1);
+      this.sprite_.scale.set(0.15, 0.15 * camera.aspectRatio, 1);
       this.sprite_.position.copy(ndc);
 
-      const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
+      const physics = this.FindEntity('physics').GetComponent('CustomAmmoJSController');
       const forward = this.Parent.Forward.clone();
       forward.multiplyScalar(1000);
       forward.add(this.Parent.Position);
@@ -138,6 +138,6 @@ export const crosshair = (() => {
   };
 
   return {
-    Crosshair: Crosshair,
+    Aim: Aim,
   };
 })();

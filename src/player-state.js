@@ -1,4 +1,4 @@
-import {THREE} from './three-defs.js';
+import {THREE} from './threeD.js';
 
 
 export const player_state = (() => {

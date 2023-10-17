@@ -1,9 +1,17 @@
-import {THREE, FBXLoader} from './three-defs.js';
+import {THREE, FBXLoader} from './threeD.js';
 
-import {entity} from './entity.js';
-import {finite_state_machine} from './finite-state-machine.js';
+import {entity} from './customEntity.js';
+import {finite_state_machine} from './FSM.js';
 import {player_state} from './player-state.js';
 
+/**
+ * @fileoverview This file contains the TargetCharacterController class and its dependencies.
+ * It defines a finite state machine for the target character, loads its models, and updates its AI.
+ * @requires THREE
+ * @requires entity.Component
+ * @requires finite_state_machine.FiniteStateMachine
+ * @requires player_state
+ */
 export const target_entity = (() => {
 
   const _M = new THREE.Matrix4();
@@ -13,10 +21,10 @@ export const target_entity = (() => {
     constructor(proxy) {
       super();
       this._proxy = proxy;
-      this.Init_();
+      this.Initialize_();
     }
   
-    Init_() {
+    Initialize_() {
       this._AddState('idle', player_state.IdleState);
       this._AddState('run', player_state.RunState);
       this._AddState('death', player_state.DeathState);
@@ -40,11 +48,11 @@ export const target_entity = (() => {
       this.params_ = params;
     }
 
-    InitEntity() {
-      this.Init_();
+    InitializeEntity() {
+      this.Initialize_();
     }
 
-    Init_() {
+    Initialize_() {
       this.decceleration_ = new THREE.Vector3(-0.0005, -0.0001, -5.0);
       this.acceleration_ = new THREE.Vector3(1, 0.125, 100.0);
       this.velocity_ = new THREE.Vector3(0, 0, 0);
@@ -60,11 +68,11 @@ export const target_entity = (() => {
       this.LoadModels_();
     }
 
-    InitComponent() {
-      this.RegisterHandler_('health.death', (m) => { this.OnDeath_(m); });
-      this.RegisterHandler_(
+    InitializeComponent() {
+      this.addEventHandler_('health.death', (m) => { this.OnDeath_(m); });
+      this.addEventHandler_(
           'update.position', (m) => { this.OnUpdatePosition_(m); });
-      this.RegisterHandler_(
+      this.addEventHandler_(
           'update.rotation', (m) => { this.OnUpdateRotation_(m); });
     }
 
@@ -87,8 +95,6 @@ export const target_entity = (() => {
 
         this.group_.add(this.target_);
         this.target_.scale.setScalar(this.params_.model.scale);
-
-        // Hack
         this.target_.position.set(0, -2.35, 0);
         this.target_.rotateY(Math.PI);
   
@@ -145,12 +151,12 @@ export const target_entity = (() => {
           this.stateMachine_.SetState('idle');
         }
 
-        this.Broadcast({
+        this.BroadcastEvent({
             topic: 'load.character',
             model: this.group_,
             bones: this.bones_,
         });
-        // this.Parent.SetPosition(this.Parent.Position);
+       
       });
     }
 
@@ -214,7 +220,7 @@ export const target_entity = (() => {
         this.stateMachine_.Update(timeInSeconds, this.input);
 
         if (this.stateMachine_._currentState._action) {
-          this.Broadcast({
+          this.BroadcastEvent({
             topic: 'player.action',
             action: this.stateMachine_._currentState.Name,
             time: this.stateMachine_._currentState._action.time,

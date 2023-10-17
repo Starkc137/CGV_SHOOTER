@@ -1,5 +1,5 @@
-import {entity} from "./entity.js";
-import {THREE} from "./three-defs.js";
+import {entity} from "./customEntity.js";
+import {THREE} from "./threeD.js";
 
 
 export const ui_controller = (() => {
@@ -9,8 +9,8 @@ export const ui_controller = (() => {
       super();
     }
 
-    InitComponent() {
-      this.RegisterHandler_(
+    InitializeComponent() {
+      this.addEventHandler_(
           'ui.charge', (m) => this.OnCharge_(m));
 
       const messages = document.getElementById('top-left-ui-area');

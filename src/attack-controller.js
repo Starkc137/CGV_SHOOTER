@@ -1,6 +1,6 @@
-import {THREE} from './three-defs.js';
+import {THREE} from './threeD.js';
 
-import {entity} from './entity.js';
+import {entity} from './customEntity.js';
 import {math} from './math.js';
 
 
@@ -17,12 +17,12 @@ export const attack_controller = (() => {
       this.params_.scene.add(this.soundGroup_);
     }
 
-    InitComponent() {
-      this.RegisterHandler_('player.action', (m) => { this.OnAnimAction_(m); });
+    InitializeComponent() {
+      this.addEventHandler_('player.action', (m) => { this.OnAnimAction_(m); });
     }
 
     LoadSound_(soundName) {
-      const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
+      const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
 
       const sound1 = new THREE.PositionalAudio(threejs.listener_);
 
@@ -52,7 +52,7 @@ export const attack_controller = (() => {
 
 
         ////////////////////////////////////////////////////////////////////////////
-        const physics = this.FindEntity('physics').GetComponent('AmmoJSController');
+        const physics = this.FindEntity('physics').GetComponent('CustomAmmoJSController');
         const end = this.Parent.Forward.clone();
         end.multiplyScalar(10.0); // changed from 100.0
         end.add(this.Parent.Position);
@@ -96,9 +96,9 @@ export const attack_controller = (() => {
         // for (let i = 0; i < hits.length; ++i) {
         //   const hitEntity = this.FindEntity(hits[i].name);
           
-        //   // Check if the hit entity is the player
+        //   // Check if the hit entityModuleis the player
         //   if (Attributes.NPC) {
-        //     hitEntity.Broadcast({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
+        //     hitEntity.BroadcastEvent({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
         //     return;
         //     }
         //     continue;
@@ -114,7 +114,7 @@ export const attack_controller = (() => {
   
             if (mesh.Attributes.NPC) {
               if (mesh.Attributes.Stats.health > 0) {
-                mesh.Broadcast({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
+                mesh.BroadcastEvent({topic: 'shot.hit', position: hits[i].position, start: this.Parent.Position, end: end});
                 return;
               }
               continue;

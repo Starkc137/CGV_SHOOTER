@@ -98,20 +98,20 @@ export const GTAOShader = {
 
 		vec4 GetViewPosition( vec2 uv ) {
 
-			float near = clipInfo.x;
-			float far = clipInfo.y;
+			float nearPlane = clipInfo.x;
+			float farPlane = clipInfo.y;
 
 			vec2 basesize = renderSize;
 			vec2 coord = ( uv / basesize );
 
 			// d is expected to be [ 0.0, 1.0 ]
 			float d = texture2D( depthBuffer, coord ).r;
-			d = d == 0.0 ? far : d;
-			d = ( abs( d ) - near ) / ( far - near );
+			d = d == 0.0 ? farPlane : d;
+			d = ( abs( d ) - nearPlane ) / ( farPlane - nearPlane );
 
 			vec4 ret = vec4( 0.0 );
 			ret.w = d;
-			ret.z = near + d * ( far - near );
+			ret.z = nearPlane + d * ( farPlane - nearPlane );
 			ret.xy = ( uv * projInfo.xy + projInfo.zw ) * ret.z;
 
 			return ret;
@@ -153,11 +153,11 @@ export const GTAOShader = {
 			vec2 offset;
 			vec2 horizons = vec2( - 1.0, - 1.0 );
 
-			// scale the search radius by the depth and camera FOV
-			float radius = ( RADIUS * clipInfo.z ) / vpos.z;
-			radius = max( float( NUM_STEPS ), radius );
+			// scale the search radiusvalue by the depth and camera FOV
+			float radiusvalue = ( RADIUS * clipInfo.z ) / vpos.z;
+			radiusvalue = max( float( NUM_STEPS ), radiusvalue );
 
-			float stepSize	= radius / float( NUM_STEPS );
+			float stepSize	= radiusvalue / float( NUM_STEPS );
 			float phi		= 0.0;
 			float ao		= 0.0;
 			float division	= noises.y * stepSize;
@@ -183,11 +183,11 @@ export const GTAOShader = {
 			#if ENABLE_RADIUS_JITTER == 1
 
 			float jitterMod = ( gl_FragCoord.x + gl_FragCoord.y ) * 0.25;
-			float radiusJitterOffset = mod( jitterMod, 1.0 ) * stepSize * 0.25;
+			float radiusvalueJitterOffset = mod( jitterMod, 1.0 ) * stepSize * 0.25;
 
 			#elif ENABLE_RADIUS_JITTER == 2
 
-			float radiusJitterOffset = PI * texture2D( blueNoiseTex, gl_FragCoord.xy / blueNoiseSize ).g;
+			float radiusvalueJitterOffset = PI * texture2D( blueNoiseTex, gl_FragCoord.xy / blueNoiseSize ).g;
 
 			#endif
 
@@ -207,7 +207,7 @@ export const GTAOShader = {
 
 				#if ENABLE_RADIUS_JITTER != 0
 
-				currStep += radiusJitterOffset;
+				currStep += radiusvalueJitterOffset;
 
 				#endif
 

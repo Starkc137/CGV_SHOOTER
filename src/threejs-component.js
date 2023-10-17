@@ -3,14 +3,21 @@ import {
     MotionBlurPass, ShaderPass, RenderPass,
     UnrealBloomPass, GammaCorrectionShader,
     CSM,
-} from './three-defs.js';
+} from './threeD.js';
 
 import {LuminosityHighPassShader} from './luminosityshader.js';
 import {RadialBlurShader} from './radial-blur.js';
 
-import {entity} from "./entity.js";
+import {entity} from "./customEntity.js";
 
 
+/**
+ * @fileoverview This file contains the implementation of a custom ThreeJS controller component.
+ * It exports a class that extends the entity.Component class and provides methods for initializing
+ * the ThreeJS renderer, camera, scene, and other objects, as well as for rendering and post-processing
+ * the scene using various effects and passes.
+ * @package
+ */
 export const threejs_component = (() => {
 
   const _SKY_VS = `
@@ -23,92 +30,63 @@ export const threejs_component = (() => {
     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
   }`;
   
-  
   const _SKY_FS = `
   uniform samplerCube background;
-  uniform samplerCube stars;
   uniform float time;
-  
   varying vec3 vWorldPosition;
-  
+
+  mat3 rotationMatrixY(float angle, vec3 axis) {
+      axis = normalize(axis);
+      float s = sin(angle);
+      float c = cos(angle);
+      float oneMinusC = 1.0 - c;
+      return mat3(oneMinusC * axis.x * axis.x + c,  oneMinusC * axis.x * axis.y - s * axis.z,  oneMinusC * axis.x * axis.z + s * axis.y,
+                  oneMinusC * axis.x * axis.y + s * axis.z,  oneMinusC * axis.y * axis.y + c,  oneMinusC * axis.y * axis.z - s * axis.x,
+                  oneMinusC * axis.x * axis.z - s * axis.y,  oneMinusC * axis.y * axis.z + s * axis.x,  oneMinusC * axis.z * axis.z + c);
+  }
+
   void main() {
-    vec3 viewDirection = normalize(vWorldPosition - cameraPosition);
-    vec3 sunDirection = normalize(vec3(0.0, 0.25, 1.0));
-    vec3 sky = sRGBToLinear(textureCube(background, viewDirection)).xyz;
+    vec3 viewDir = normalize(vWorldPosition - cameraPosition);
+    vec3 skyCol = textureCube(background, rotationMatrixY(time * 0.02, vec3(0.0, 1.0, 0.0)) * viewDir).rgb;
+    float bloom = 0.1 * max(0.0, dot(viewDir, vec3(0.0, 0.25, 1.0)));
+    gl_FragColor = vec4(skyCol, bloom);
+  }
+`;
 
-    float c1 = cos(time * 0.02);
-    float s1 = sin(time * 0.02);
-    float c2 = cos(time * 0.0075);
-    float s2 = sin(time * 0.0075);
-    mat3 r1 = mat3(
-        1.0, 0.0, 0.0,
-        0.0, c1, -s1,
-        0, s1, c1);
-    mat3 r2 = mat3(
-        c2, 0.0, s2,
-        0.0, 1.0, 0.0,
-        -s2, 0.0, c2);
-    vec3 stars = sRGBToLinear(textureCube(stars, r1 * r2 * viewDirection)).xyz;
-  
-    // sky = smoothstep(vec3(0.0), vec3(1.0), sky);
-    // sky = sky * mix(vec3(1.0, 0.6, 0.0), vec3(1.0), 0.75);
-    // sky = pow(sky, vec3(0.8, 1.5, 1.5));
-    // sky = smoothstep(vec3(0.0), vec3(1.0), sky);
-
-    // VIDEO HACK
-    sky = pow(sky, vec3(1.5, 1.5, 1.2));
-
-    vec3 luma = vec3( 0.299, 0.587, 0.114 );
-    float starAlpha = clamp(dot(sky, luma) + 0.5, 0.0, 1.0);
-    starAlpha = pow(starAlpha, 1.5);
-    // VIDEO HACK
-    sky = mix(stars, sky, starAlpha);
-
-    float bloom = 0.2 * pow(max(0.0, dot(viewDirection, sunDirection)), 16.0);
-    // VIDEO HACK
-    // float bloom = 0.0;
-    // gl_FragColor = vec4(sky, 1.0);
-    gl_FragColor = vec4(sky * (1.0 - bloom * 2.0), bloom);
-  }`;
-
-
-  class ThreeJSController extends entity.Component {
+  class CustomThreeJSController extends entity.Component {
     constructor() {
       super();
     }
 
-    InitEntity() {
+    InitializeEntity() {
       THREE.ShaderChunk.emissivemap_fragment += '\ndiffuseColor.a = 0.0;';
         
-      this.threejs_ = new THREE.WebGLRenderer({
+      this.threeRenderer_ = new THREE.WebGLRenderer({
         antialias: false,
       });
-      this.threejs_.shadowMap.enabled = true;
-      this.threejs_.shadowMap.type = THREE.PCFSoftShadowMap;
-      this.threejs_.setPixelRatio(window.devicePixelRatio);
-      this.threejs_.setSize(window.innerWidth, window.innerHeight);
-      this.threejs_.domElement.id = 'threejs';
-      this.threejs_.physicallyCorrectLights = true;
-      // this.threejs_.toneMapping = THREE.ACESFilmicToneMapping;
-      // this.threejs_.toneMappingExposure = 1.0;
-  
-      document.getElementById('container').appendChild(this.threejs_.domElement);
+      this.threeRenderer_.shadowMap.enabled = true;
+      this.threeRenderer_.shadowMap.type = THREE.PCFSoftShadowMap;
+      this.threeRenderer_.setPixelRatio(window.devicePixelRatio);
+      this.threeRenderer_.setSize(window.innerWidth, window.innerHeight);
+      this.threeRenderer_.domElement.id = 'threejs';
+      this.threeRenderer_.physicallyCorrectLights = true;
+      document.getElementById('container').appendChild(this.threeRenderer_.domElement);
   
       window.addEventListener('resize', () => {
         this.onWindowResize_();
       }, false);
 
-      const fov = 60;
-      const aspect = 1920 / 1080;
-      const near = 0.1;
-      const far = 1000.0;
-      this.camera_ = new THREE.PerspectiveCamera(fov, aspect, near, far);
+      const fieldOfView = 60;
+      const aspectRatio = 1920 / 1080;
+      const nearPlane = 0.1;
+      const farPlane = 1000.0;
+      this.camera_ = new THREE.PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane);
       this.camera_.position.set(20, 5, 15);
 
       this.scene_ = new THREE.Scene();
       this.scene_.add(this.camera_);
 
-      this.decalCamera_ = new THREE.PerspectiveCamera(fov, aspect, near, far);
+      this.decalCamera_ = new THREE.PerspectiveCamera(fieldOfView, aspectRatio, nearPlane, farPlane);
       this.decalCamera_.position.set(20, 5, 15);
       this.sceneDecals_ = new THREE.Scene();
       this.sceneDecals_.add(this.decalCamera_);
@@ -135,7 +113,7 @@ export const threejs_component = (() => {
       this.sun_ = light;
 
       this.csm_ = new CSM( {
-        maxFar: this.camera_.far,
+        maxFar: this.camera_.farPlane,
         cascades: 4,
         mode: 'logarithmic',
         parent: this.scene_,
@@ -172,7 +150,6 @@ export const threejs_component = (() => {
         magFilter: THREE.NearestFilter,
         format: THREE.RGBAFormat,
         type: THREE.FloatType,
-        // stencilBuffer: false,
       };
       
       const renderTarget = new THREE.WebGLRenderTarget(
@@ -180,7 +157,7 @@ export const threejs_component = (() => {
       this.writeBuffer_ = renderTarget;
       this.readBuffer_ = renderTarget.clone();
   
-      this.composer_ = new EffectComposer(this.threejs_);
+      this.composer_ = new EffectComposer(this.threeRenderer_);
       this.composer_.setPixelRatio(window.devicePixelRatio);
       this.composer_.setSize(window.innerWidth, window.innerHeight);
   
@@ -198,7 +175,7 @@ export const threejs_component = (() => {
   
       this.bloomPass_ = new UnrealBloomPass(
           new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-      this.bloomPass_.radius = 0.0;
+      this.bloomPass_.radiusvalue = 0.0;
 
       this.bloomPass_.materialHighPassFilter = new THREE.ShaderMaterial({
         uniforms: this.bloomPass_.highPassUniforms,
@@ -242,19 +219,9 @@ export const threejs_component = (() => {
       ]);
       texture.encoding = THREE.sRGBEncoding;
 
-      const starTexture = loader.load([
-          './resources/sky/space-posx.jpg',
-          './resources/sky/space-negx.jpg',
-          './resources/sky/space-posy.jpg',
-          './resources/sky/space-negy.jpg',
-          './resources/sky/space-posz.jpg',
-          './resources/sky/space-negz.jpg',
-      ]);
-      starTexture.encoding = THREE.sRGBEncoding;
   
       const uniforms = {
         "background": { value: texture },
-        "stars": { value: starTexture },
         "time": { value: 0.0 },
       };
   
@@ -271,19 +238,19 @@ export const threejs_component = (() => {
     }
 
     getMaxAnisotropy() {
-      return this.threejs_.capabilities.getMaxAnisotropy();
+      return this.threeRenderer_.capabilities.getMaxAnisotropy();
     }
 
     onWindowResize_() {
-      this.camera_.aspect = window.innerWidth / window.innerHeight;
+      this.camera_.aspectRatio = window.innerWidth / window.innerHeight;
       this.camera_.updateProjectionMatrix();
   
-      this.threejs_.setSize(window.innerWidth, window.innerHeight);
+      this.threeRenderer_.setSize(window.innerWidth, window.innerHeight);
       this.composer_.setSize(window.innerWidth, window.innerHeight);
 
       this.csm_.updateFrustums();
   
-      const pixelRatio = this.threejs_.getPixelRatio();
+      const pixelRatio = this.threeRenderer_.getPixelRatio();
       this.fxaaPass_.material.uniforms['resolution'].value.x = 1 / (
           window.innerWidth * pixelRatio);
       this.fxaaPass_.material.uniforms['resolution'].value.y = 1 / (
@@ -301,23 +268,20 @@ export const threejs_component = (() => {
 
       this.opaquePass_.clearColor = new THREE.Color(0x000000);
       this.opaquePass_.clearAlpha = 0.0;
-      this.opaquePass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
-
-      // VIDEO HACK
-      this.bloomPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
-      this.uiPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
+      this.opaquePass_.render(this.threeRenderer_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
+      this.bloomPass_.render(this.threeRenderer_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
+      this.uiPass_.render(this.threeRenderer_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
 
       this.radialBlur_.uniforms.center.value.set(window.innerWidth * 0.5, window.innerHeight * 0.5);
       this.radialBlur_.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
-      // VIDEO HACK
-      this.radialBlur_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
+      this.radialBlur_.render(this.threeRenderer_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
       this.swapBuffers_();
 
-      this.fxaaPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
+      this.fxaaPass_.render(this.threeRenderer_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
       this.swapBuffers_();
 
       this.gammaPass_.renderToScreen = true;
-      this.gammaPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
+      this.gammaPass_.render(this.threeRenderer_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
     }
 
     Update(timeElapsed) {
@@ -342,6 +306,6 @@ export const threejs_component = (() => {
   }
 
   return {
-      ThreeJSController: ThreeJSController,
+      CustomThreeJSController: CustomThreeJSController,
   };
 })();

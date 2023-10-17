@@ -34,12 +34,12 @@ export class BlueNoiseGenerator {
 		const pointCount = Math.floor( size * size * majorityPointsRatio );
 		const initialSamples = samples.binaryPattern;
 
-		console.time( 'Array Initialization' );
+		console.time( 'Array Initializeialization' );
 		fillWithOnes( initialSamples, pointCount );
 		shuffleArray( initialSamples, this.random );
-		console.timeEnd( 'Array Initialization' );
+		console.timeEnd( 'Array Initializeialization' );
 
-		console.time( 'Score Initialization' );
+		console.time( 'Score Initializeialization' );
 		for ( let i = 0, l = initialSamples.length; i < l; i ++ ) {
 
 			if ( initialSamples[ i ] === 1 ) {
@@ -49,7 +49,7 @@ export class BlueNoiseGenerator {
 			}
 
 		}
-		console.timeEnd( 'Score Initialization' );
+		console.timeEnd( 'Score Initializeialization' );
 
 		// 2. Remove minority point that is in densest cluster and place it in the largest void.
 		console.time( 'Point Rearrangement' );

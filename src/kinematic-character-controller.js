@@ -1,7 +1,7 @@
 
-import {THREE} from './three-defs.js';
+import {THREE} from './threeD.js';
 
-import {entity} from './entity.js';
+import {entity} from './customEntity.js';
 
 
 export const kinematic_character_controller = (() => {
@@ -12,26 +12,26 @@ export const kinematic_character_controller = (() => {
       this.params_ = params;
     }
 
-    Destroy() {
-      this.FindEntity('physics').GetComponent('AmmoJSController').RemoveRigidBody(this.body_);
+    removeEntity() {
+      this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
     }
 
-    InitEntity() {
+    InitializeEntity() {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
 
-      this.body_ = this.FindEntity('physics').GetComponent('AmmoJSController').CreateKinematicCharacterController(
+      this.body_ = this.FindEntity('physics').GetComponent('CustomAmmoJSController').CreateKinematicCharacterController(
           pos, quat, {name: this.Parent.Name});
 
       this.Parent.Attributes.Physics = {
         CharacterController: this.body_,
       };
           
-      this.Broadcast({topic: 'physics.loaded'});
+      this.BroadcastEvent({topic: 'physics.loaded'});
     }
 
-    InitComponent() {
-      this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
+    InitializeComponent() {
+      this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
     }
 
     OnPosition_(m) {

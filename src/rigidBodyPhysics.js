@@ -1,6 +1,6 @@
-import {THREE} from './three-defs.js';
+import {THREE} from './threeD.js';
 
-import {entity} from './entity.js';
+import {entity} from './customEntity.js';
 
 
 export const basic_rigid_body = (() => {
@@ -11,15 +11,15 @@ export const basic_rigid_body = (() => {
       this.params_ = params;
     }
 
-    Destroy() {
-      this.FindEntity('physics').GetComponent('AmmoJSController').RemoveRigidBody(this.body_);
+    removeEntity() {
+      this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
     }
 
-    InitEntity() {
+    InitializeEntity() {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
 
-      this.body_ = this.FindEntity('physics').GetComponent('AmmoJSController').CreateBox(
+      this.body_ = this.FindEntity('physics').GetComponent('CustomAmmoJSController').CreateBox(
           pos, quat, this.params_.box, {name: this.Parent.Name});
 
       if (this.params_.scene) {
@@ -33,13 +33,13 @@ export const basic_rigid_body = (() => {
       this.Parent.Attributes.roughRadius = Math.max(
           this.params_.box.x,
           Math.max(this.params_.box.y, this.params_.box.z));
-      this.Broadcast({topic: 'physics.loaded'});
+      this.BroadcastEvent({topic: 'physics.loaded'});
     }
 
-    InitComponent() {
-      this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
-      this.RegisterHandler_('update.rotation', (m) => { this.OnRotation_(m); });
-      this.RegisterHandler_('physics.collision', (m) => { this.OnCollision_(m); });
+    InitializeComponent() {
+      this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
+      this.addEventHandler_('update.rotation', (m) => { this.OnRotation_(m); });
+      this.addEventHandler_('physics.collision', (m) => { this.OnCollision_(m); });
     }
 
     OnCollision_() {
@@ -83,15 +83,15 @@ export const basic_rigid_body = (() => {
       this.box_ = new THREE.Box3();
     }
 
-    Destroy() {
-      this.FindEntity('physics').GetComponent('AmmoJSController').RemoveRigidBody(this.body_);
+    removeEntity() {
+      this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
     }
 
-    InitEntity() {
+    InitializeEntity() {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
 
-      this.body_ = this.FindEntity('physics').GetComponent('AmmoJSController').CreateBox(
+      this.body_ = this.FindEntity('physics').GetComponent('CustomAmmoJSController').CreateBox(
           pos, quat, this.params_.box, {name: this.Parent.Name});
 
       if (this.params_.scene) {
@@ -105,13 +105,13 @@ export const basic_rigid_body = (() => {
       this.Parent.Attributes.roughRadius = Math.max(
           this.params_.box.x,
           Math.max(this.params_.box.y, this.params_.box.z));
-      this.Broadcast({topic: 'physics.loaded'});
+      this.BroadcastEvent({topic: 'physics.loaded'});
     }
 
-    InitComponent() {
-      this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
-      this.RegisterHandler_('update.rotation', (m) => { this.OnRotation_(m); });
-      this.RegisterHandler_('physics.collision', (m) => { this.OnCollision_(m); });
+    InitializeComponent() {
+      this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
+      this.addEventHandler_('update.rotation', (m) => { this.OnRotation_(m); });
+      this.addEventHandler_('physics.collision', (m) => { this.OnCollision_(m); });
     }
 
     OnCollision_() {

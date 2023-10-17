@@ -1,6 +1,6 @@
-import {THREE} from './three-defs.js';
+import {THREE} from './threeD.js';
 
-import {entity} from './entity.js';
+import {entity} from './customEntity.js';
 import {math} from './math.js';
 
 
@@ -10,37 +10,37 @@ export const player_controller = (() => {
     constructor(params) {
       super();
       this.params_ = params;
-      this.dead_ = false;
+      this.isEntityDead_ = false;
     }
 
-    InitComponent() {
-      this.RegisterHandler_('physics.collision', (m) => { this.OnCollision_(m); });
+    InitializeComponent() {
+      this.addEventHandler_('physics.collision', (m) => { this.OnCollision_(m); });
       
     }
 
 
-    InitEntity() {
+    InitializeEntity() {
       this.decceleration_ = new THREE.Vector3(-0.0005, -0.0001, -1);
       this.acceleration_ = new THREE.Vector3(100, 0.5, 25000);
       this.velocity_ = new THREE.Vector3(0, 0, 0);
     }
 
     OnCollision_() {
-      if (!this.dead_) {
-        this.dead_ = true;
+      if (!this.isEntityDead_) {
+        this.isEntityDead_ = true;
         console.log('EXPLODE ' + this.Parent.Name);
-        this.Broadcast({topic: 'health.dead'});
+        this.BroadcastEvent({topic: 'health.dead'});
       }
     }
 
     Fire_() {
-      this.Broadcast({
+      this.BroadcastEvent({
           topic: 'player.fire'
       });
     }
 
     Update(timeInSeconds) {
-      if (this.dead_) {
+      if (this.isEntityDead_) {
         return;
       }
 

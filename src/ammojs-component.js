@@ -1,10 +1,18 @@
-import {THREE} from './three-defs.js';
-import {entity} from './entity.js';
+import {THREE} from './threeD.js';
+import {entity} from './customEntity.js';
 
 
-export const ammojs_component = (() => {
+/**
+ * @fileoverview This file contains classes for creating AmmoJS rigid bodies and kinematic character controllers.
+ * @see https://pybullet.org/Bullet/BulletFull/btCollisionObject_8h_source.html#l00131
+ * @see https://pybullet.org/Bullet/BulletFull/btKinematicCharacterController_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btRigidBody_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btGhostObject_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btTriangleMesh_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btBvhTriangleMeshShape_8h_source.html
+ */
+export const bullet_physics = (() => {
 
-  // https://pybullet.org/Bullet/BulletFull/btCollisionObject_8h_source.html#l00131
   const flags = {
     CF_STATIC_OBJECT: 1,
     CF_KINEMATIC_OBJECT: 2,
@@ -13,25 +21,25 @@ export const ammojs_component = (() => {
     CF_CHARACTER_OBJECT: 16
   };
 
-  const GRAVITY = 75;
+  const GRAVITY_VALUE = 75;
 
-  class AmmoJSKinematicCharacterController {
+  class CustomAmmoJSKinematicCharacterController {
     constructor() {
     }
 
-    Destroy() {
+    removeEntity() {
     }
 
-    Init(pos, quat, userData) {
-      const radius = 1;
-      const height = 3;
+    Initialize(pos, quat, userData) {
+      const radiusvalue = 1;
+      const heightvalue = 3;
 
       this.transform_ = new Ammo.btTransform();
       this.transform_.setIdentity();
       this.transform_.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
       this.transform_.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
 
-      this.shape_ = new Ammo.btCapsuleShape(radius, height);
+      this.shape_ = new Ammo.btCapsuleShape(radiusvalue, heightvalue);
       this.shape_.setMargin(0.05);
 
       this.body_ = new Ammo.btPairCachingGhostObject();
@@ -43,10 +51,10 @@ export const ammojs_component = (() => {
       this.controller_ = new Ammo.btKinematicCharacterController(this.body_, this.shape_, 0.35, 1);
       this.controller_.setUseGhostSweepTest(true);
       this.controller_.setUpInterpolate();
-      this.controller_.setGravity(GRAVITY);
+      this.controller_.setGravity(GRAVITY_VALUE);
       this.controller_.setMaxSlope(Math.PI / 3);
       this.controller_.canJump(true);
-      this.controller_.setJumpSpeed(GRAVITY/3);
+      this.controller_.setJumpSpeed(GRAVITY_VALUE/3);
       this.controller_.setMaxJumpHeight(100);
 
       this.userData_ = new Ammo.btVector3(0, 0, 0);
@@ -57,7 +65,7 @@ export const ammojs_component = (() => {
     }
 
     setJumpMultiplier(multiplier) {
-      this.controller_.setJumpSpeed(multiplier * GRAVITY / 3);
+      this.controller_.setJumpSpeed(multiplier * GRAVITY_VALUE / 3);
     }
 
     setWalkDirection(walk) {
@@ -80,7 +88,7 @@ export const ammojs_component = (() => {
     constructor() {
     }
 
-    Destroy() {
+    removeEntity() {
       Ammo.destroy(this.body_);
       Ammo.destroy(this.info_);
       Ammo.destroy(this.shape_);
@@ -94,7 +102,7 @@ export const ammojs_component = (() => {
       }
     }
 
-    InitBox(pos, quat, size, userData) {
+    InitializeBox(pos, quat, size, userData) {
       this.transform_ = new Ammo.btTransform();
       this.transform_.setIdentity();
       this.transform_.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
@@ -118,7 +126,7 @@ export const ammojs_component = (() => {
       Ammo.destroy(btSize);
     }
 
-    InitMesh(src, pos, quat, userData) {
+    InitializeMesh(src, pos, quat, userData) {
       const A0 = new Ammo.btVector3(0, 0, 0);
       const A1 = new Ammo.btVector3(0, 0, 0);
       const A2 = new Ammo.btVector3(0, 0, 0);
@@ -180,12 +188,12 @@ export const ammojs_component = (() => {
     }
   }
 
-  class AmmoJSController extends entity.Component {
+  class CustomAmmoJSController extends entity.Component {
     constructor() {
       super();
     }
 
-    Destroy() {
+    removeEntity() {
       Ammo.Destroy(this.physicsWorld_);
       Ammo.Destroy(this.solver_);
       Ammo.Destroy(this.broadphase_);
@@ -193,7 +201,7 @@ export const ammojs_component = (() => {
       Ammo.Destroy(this.collisionConfiguration_);
     }
 
-    InitEntity() {
+    InitializeEntity() {
       this.collisionConfiguration_ = new Ammo.btDefaultCollisionConfiguration();
       this.dispatcher_ = new Ammo.btCollisionDispatcher(this.collisionConfiguration_);
       this.broadphase_ = new Ammo.btDbvtBroadphase();
@@ -232,12 +240,12 @@ export const ammojs_component = (() => {
           const normal = normals.at(i);
   
           const p = new THREE.Vector3(point.x(), point.y(), point.z());
-          const n = new THREE.Vector3(normal.x(), normal.y(), normal.z());
+          const name = new THREE.Vector3(normal.x(), normal.y(), normal.z());
 
           hitData.push({
             name: ud0.name,
             position: p,
-            normal: n,
+            normal: name,
             distance: p.distanceTo(start),
           });
         }
@@ -252,12 +260,12 @@ export const ammojs_component = (() => {
 
     RemoveRigidBody(body) {
       this.physicsWorld_.removeRigidBody(body.body_);
-      body.Destroy();
+      body.removeEntity();
     }
 
     CreateKinematicCharacterController(pos, quat, userData) {
-      const controller = new AmmoJSKinematicCharacterController();
-      controller.Init(pos, quat, userData);
+      const controller = new CustomAmmoJSKinematicCharacterController();
+      controller.Initialize(pos, quat, userData);
 
       this.physicsWorld_.addCollisionObject(controller.body_);
       this.physicsWorld_.addAction(controller.controller_);
@@ -272,7 +280,7 @@ export const ammojs_component = (() => {
     CreateBox(pos, quat, size, userData) {
       const box = new AmmoJSRigidBody();
 
-      box.InitBox(pos, quat, size, userData);
+      box.InitializeBox(pos, quat, size, userData);
 
       this.physicsWorld_.addRigidBody(box.body_);
 
@@ -285,7 +293,7 @@ export const ammojs_component = (() => {
     CreateMesh(src, pos, quat, userData) {
       const mesh = new AmmoJSRigidBody();
 
-      mesh.InitMesh(src, pos, quat, userData);
+      mesh.InitializeMesh(src, pos, quat, userData);
 
       this.physicsWorld_.addRigidBody(mesh.body_);
 
@@ -325,9 +333,9 @@ export const ammojs_component = (() => {
         }
       }
 
-      for (let k in collisions) {
-        const e = this.FindEntity(k);
-        e.Broadcast({topic: 'physics.collision', value: collisions[k]});
+      for (let key in collisions) {
+        const e = this.FindEntity(key);
+        e.BroadcastEvent({topic: 'physics.collision', value: collisions[key]});
       }
     }
 
@@ -336,6 +344,6 @@ export const ammojs_component = (() => {
   }
 
   return {
-      AmmoJSController: AmmoJSController,
+      CustomAmmoJSController: CustomAmmoJSController,
   };
 })();

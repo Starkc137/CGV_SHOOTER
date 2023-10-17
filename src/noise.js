@@ -6,10 +6,10 @@ export const noise = (function() {
   class _NoiseGenerator {
     constructor(params) {
       this._params = params;
-      this._Init();
+      this._Initialize();
     }
 
-    _Init() {
+    _Initialize() {
       this._noise = new simplex.SimplexNoise(this._params.seed);
     }
 
@@ -35,7 +35,7 @@ export const noise = (function() {
       }
       total /= normalization;
       return Math.pow(
-          total, this._params.exponentiation) * this._params.height;
+          total, this._params.exponentiation) * this._params.heightvalue;
     }
   }
 

@@ -1,4 +1,4 @@
-import {THREE} from "./three-defs.js";
+import {THREE} from "./threeD.js";
 
 
 export const decal_material = (() => {
@@ -87,9 +87,9 @@ export const decal_material = (() => {
           return length(p) - r;
       }
 
-      float smin(float a, float b, float k) {
-        float h = clamp(0.5 + 0.5*(a-b)/k, 0.0, 1.0);
-        return mix(a, b, h) - k*h*(1.0-h);
+      float smin(float a, float b, float key) {
+        float h = clamp(0.5 + 0.5*(a-b)/key, 0.0, 1.0);
+        return mix(a, b, h) - key*h*(1.0-h);
       }
 
       const mat3 m3  = mat3( 0.00,  0.80,  0.60,
@@ -115,9 +115,9 @@ export const decal_material = (() => {
                         0.0,0.0,1.0);
           for( int i=0; i<3; i++ )
           {
-              vec4 n = noised(x);
-              a += b*n.x;          // accumulate values		
-              d += b*m*n.yzw;      // accumulate derivatives
+              vec4 name = noised(x);
+              a += b*name.x;          // accumulate values		
+              d += b*m*name.yzw;      // accumulate derivatives
               b *= s;
               x = f*m3*x;
               m = f*m3i*m;
