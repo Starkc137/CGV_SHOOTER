@@ -13,8 +13,8 @@ export const ui_controller = (() => {
       this.addEventHandler_(
           'ui.charge', (m) => this.OnCharge_(m));
 
-      const messages = document.getElementById('top-left-ui-area');
-      messages.style.visibility = 'hidden';
+      //const messages = document.getElementById('top-left-ui-area');
+      //messages.style.visibility = 'hidden';
     }
 
     OnCharge_(msg) {

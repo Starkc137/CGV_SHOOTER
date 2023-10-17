@@ -20,6 +20,10 @@ import {entity} from "./customEntity.js";
  */
 export const threejs_component = (() => {
 
+  /**
+   * Vertex shader code for rendering sky in Three.js.
+   * @type {string}
+   */
   const _SKY_VS = `
   varying vec3 vWorldPosition;
   
@@ -30,6 +34,13 @@ export const threejs_component = (() => {
     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
   }`;
   
+  /**
+   * Fragment shader code for rendering a skybox with bloom effect.
+   * @constant
+   * @type {string}
+   * @default
+   * @memberof module:threejs-component
+   */
   const _SKY_FS = `
   uniform samplerCube background;
   uniform float time;
