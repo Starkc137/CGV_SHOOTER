@@ -1,0 +1,50 @@
+
+#menu{
+    position: absolute;
+    background-color: skyblue;
+    opacity: 0.7;
+    width: 200px;
+    height: 200px;
+    top: 37.5%;
+    left: 37.5%;
+    padding: 10px;
+    border-style: solid;
+    border-radius: 70px;
+    border-color: aquamarine;
+
+}
+
+#play_button{
+    position:relative;
+    background-color: coral;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 4px;
+    text-align: center;
+    border-color: darkblue;
+    display: block;
+    padding: 10px;
+    margin: 40px;
+    left: 50%px;
+    top: 0;
+}
+
+#exit_button{
+    position:relative;
+    display: block;
+    background-color: coral;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 4px;
+    text-align: center;
+    border-color: darkblue;
+    padding: 10px;
+    margin: 40px;
+    top: 0;
+    bottom: 50%;
+}
+
+.disabled {
+    pointer-events: none;
+}
+

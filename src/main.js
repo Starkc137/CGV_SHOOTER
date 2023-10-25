@@ -88,6 +88,8 @@ class CGVShooter {
         this.previousRAF_ = t;
       }
 
+   
+
       setTimeout(() => {
         this.RAF_();
       }, 1);
@@ -110,5 +112,53 @@ let _APP = null;
 window.addEventListener('DOMContentLoaded', async () => {
   const AmmoLib = await Ammo();
   Ammo = AmmoLib;
-  _APP = new CGVShooter();
+
+  //Retrieve UI and let it be invisible
+  document.getElementById("container").style.display = 'none';
+
+  // Make video play 
+  document.getElementById('background').play();
+
+  // Retrieve Menu Buttons and addlisteners
+  let play_button = document.getElementById('play_button');
+  let exit_button = document.getElementById('exit_button');
+
+  exit_button.addEventListener('click',exit);
+  function exit(){
+    window.close();
+  }
+   // Add Pause In Game
+   document.body.addEventListener("keydown",(event)=>{
+      if(event.key == "Escape" && _APP != null){
+        document.getElementById('menu').style.display = 'initial';
+        document.getElementById('menu').class = "modal";
+        
+        document.getElementById('menu').focus();
+        
+        play_button.innerHTML = "Resume";
+        play_button.removeEventListener("click",menu);
+        
+        // Register remove onClick
+        play_button.addEventListener("click",()=>{
+          document.getElementById('menu').style.display = 'none';
+        });
+
+        
+      }
+   });
+
+  play_button.addEventListener("click",menu);
+  
+  function menu(){
+     // Make Menu and Background to not get rendered 
+     document.getElementById("container").style.display = 'initial';
+
+     // Do not render menu and remove Background
+     document.getElementById('background').style.display = 'none';
+     document.getElementById('menu').style.display = 'none';
+      
+     // Start Game
+     _APP = new CGVShooter();
+   
+  }
 });

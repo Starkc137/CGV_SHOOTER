@@ -38,6 +38,14 @@ export const player_input = (() => {
       this.target_.addEventListener('mouseup', (e) => this.onMouseUp_(e), false);
       this.target_.addEventListener('keydown', (e) => this.onKeyDown_(e), false);
       this.target_.addEventListener('keyup', (e) => this.onKeyUp_(e), false);
+      
+       // Add Pause In-Game
+      this.target_.addEventListener('keydown',(event)=>{
+        if(event.code=="27"){
+          window.alert("Yes");
+          console.log("Hello");
+        }
+      })
 
       this.Parent.Attributes.Input = {
         Keyboard: {

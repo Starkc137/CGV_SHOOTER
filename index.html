@@ -3,12 +3,14 @@
 <head>
   <title>ShooterCGV</title>
   <link rel="stylesheet" type="text/css" href="base.css">
+  <link rel="stylesheet" type="text/css" href="menu.css">
   <link rel="shortcut icon" href="#">
-</head>
-<body>
+
   <script src="https://cdn.jsdelivr.net/gh/kripken/ammo.js@HEAD/builds/ammo.js"></script>
   <script src="./src/main.js" type="module">
   </script>
+  
+
   <div class="container" id="container">
     <div class="ui" id="game-ui">
       <div class="game-over-layout" id="GAME OVER">
@@ -64,5 +66,27 @@
       </div> 
     </div>
   </div>
+</head>
+<body>
+    <!-- Menu Background element src=https://www.youtube.com/watch?v=8cRoBLyu5Jc credits AA-VFX YT Channel-->
+  <video width="100%" height="100%" autoplay loop id="background" muted="muted" style="opacity: 0.4;z-index: 0;" >
+    <source src="resources/menu/background.mp4" type="video/mp4">  
+    <source src="resources/menu/background.ogg" type="video/ogg">
+    Your Browser does not support background
+  </video>
+
+  <div id="menu" class="modal" tabindex="0">
+    <p style="text-align: center; color: black;  font-weight: bold; ">
+      Start Menu
+    </p>
+    <button  id="play_button" class="play_button">
+      Play
+    </button>
+    <button  id="exit_button" class="exit_button">
+      Exit
+    </button>
+  </div>
+  
+  
 </body>
 </html>
