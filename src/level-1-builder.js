@@ -15,22 +15,35 @@ export const level_1_builder = (() => {
       super();
 
       const self = this; 
-
+      
       const startingMinutes = 5;
       let time = startingMinutes * 60;
 
+      document.addEventListener('keydown',(e)=>{
+        console.log(e.key);
+        if(e.key == 'Escape'){
+          self.togglePause();
+
+        }
+      });
+
       const countdownEl = document.getElementById('countdown');
 
-      setInterval(updateCountdown, 1000);
+      setInterval(function (){updateCountdown(self.paused)}, 1000);
 
-      function updateCountdown () {
+      function updateCountdown (_paused) {
         const minutes = Math.floor(time / 60);
         let seconds = time % 60;
+        console.log(_paused)
+        if(!_paused){
+          seconds = seconds < 10 ? '0' + seconds : seconds;
+        
 
-        seconds = seconds < 10 ? '0' + seconds : seconds;
-
-        countdownEl.innerHTML = `${minutes}:${seconds}`;
-        time--;
+          countdownEl.innerHTML = `${minutes}:${seconds}`;
+          time--;
+        }else{
+          countdownEl.innerHTML = `${minutes}:${seconds}`;
+        }
         if (time < 0) {
           time = 0;
         
@@ -51,7 +64,7 @@ export const level_1_builder = (() => {
       albedo.wrapS = THREE.RepeatWrapping;
       albedo.wrapT = THREE.RepeatWrapping;
       albedo.encoding = THREE.sRGBEncoding;
-
+      
       const metalness = textureLoader.load('./resources/textures/' + metalnessName);
       metalness.anisotropy = this.FindEntity('threejs').GetComponent('CustomThreeJSController').getMaxAnisotropy();
       metalness.wrapS = THREE.RepeatWrapping;

@@ -80,25 +80,27 @@ class CGVShooter {
   }
 
   RAF_() {
-    requestAnimationFrame((t) => {
-      if (this.previousRAF_ === null) {
-        this.previousRAF_ = t;
-      } else {
-        this.Step_(t - this.previousRAF_);
-        this.previousRAF_ = t;
-      }
+    if(!this.paused){
+      requestAnimationFrame((t) => {
+        if (this.previousRAF_ === null) {
+          this.previousRAF_ = t;
+        } else {
+          this.Step_(t - this.previousRAF_);
+          this.previousRAF_ = t;
+        }
 
-   
 
-      setTimeout(() => {
-        this.RAF_();
-      }, 1);
-    });
+
+        setTimeout(() => {
+          this.RAF_();
+        }, 1);
+      });
+    }
   }
 
   Step_(timeElapsed) {
     const timeElapsedS = Math.min(1.0 / 30.0, timeElapsed * 0.001);
-
+    
     this.entityManager_.Update(timeElapsedS);
 
     this.ammojs_.StepSimulation(timeElapsedS);
@@ -127,29 +129,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   function exit(){
     window.close();
   }
-   // Add Pause In Game
-   document.body.addEventListener("keydown",(event)=>{
-      if(event.key == "Escape" && _APP != null){
-        document.getElementById('menu').style.display = 'initial';
-        document.getElementById('menu').class = "modal";
-        
-        document.getElementById('menu').focus();
-        
-        play_button.innerHTML = "Resume";
-        play_button.removeEventListener("click",menu);
-        
-        // Register remove onClick
-        play_button.addEventListener("click",()=>{
-          document.getElementById('menu').style.display = 'none';
-        });
 
-        
-      }
-   });
-
-  play_button.addEventListener("click",menu);
-  
-  function menu(){
+  play_button.addEventListener("click",start);
+  function start(){
      // Make Menu and Background to not get rendered 
      document.getElementById("container").style.display = 'initial';
 

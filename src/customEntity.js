@@ -34,6 +34,7 @@ export const entity = (() => {
       this.isEntityDead_ = false;
     }
 
+    
     /**
      * Removes the entity and all its components from the game.
      */
@@ -281,7 +282,23 @@ export const entity = (() => {
     constructor() {
       this.entityParent_ = null;
       this.pass_ = 0;
+      this.paused = false;
     }
+
+    //START PAUSE FUNCTIONALITY
+
+    pause() {
+      this.paused = true;
+    }
+  
+    resume() {
+      this.paused = false;
+    }
+  
+    togglePause() {
+      this.paused = !this.paused;
+    }
+    // END PAUSE FUNCTIONALITY
 
     /**
      * Removes the component from the entity.

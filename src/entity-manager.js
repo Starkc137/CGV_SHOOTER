@@ -11,6 +11,30 @@ export const entity_manager = (() => {
       this.entitieslist_ = [];
       this.updatepasses_ = [0, 1, 2, 3];
     }
+    /**
+     * Pause All Components In Game
+     */
+    pauseAll() {
+      this.entitieslist_.forEach(entity => {
+        entity.entityComponents.forEach(component => {
+          if (component.paused !== undefined) {
+            component.pause();
+          }
+        });
+      });
+    }
+
+    /**Resume Game Functionalities */
+    resumeAll() {
+      this.entitieslist_.forEach(entity => {
+        entity.entityComponents.forEach(component => {
+          if (component.paused !== undefined) {
+            component.resume();
+          }
+        });
+      });
+    }
+  
 
     /**
      * Generates a unique name for an entity.
@@ -104,7 +128,7 @@ export const entity_manager = (() => {
       const aliveEntities = [];
       for (let i = 0; i < this.entitieslist_.length; ++i) {
         const e = this.entitieslist_[i];
-
+        
         e.Update(timeElapsedS, pass);
 
         if (e.dead_) {

@@ -12,6 +12,7 @@ export const player_input = (() => {
     'SPACE': 32,
     'SHIFT_L': 16,
     'CTRL_L': 17,
+    'Escape':27,
   };
 
   class PlayerInput extends entity.Component {
@@ -38,14 +39,6 @@ export const player_input = (() => {
       this.target_.addEventListener('mouseup', (e) => this.onMouseUp_(e), false);
       this.target_.addEventListener('keydown', (e) => this.onKeyDown_(e), false);
       this.target_.addEventListener('keyup', (e) => this.onKeyUp_(e), false);
-      
-       // Add Pause In-Game
-      this.target_.addEventListener('keydown',(event)=>{
-        if(event.code=="27"){
-          window.alert("Yes");
-          console.log("Hello");
-        }
-      })
 
       this.Parent.Attributes.Input = {
         Keyboard: {
@@ -104,6 +97,21 @@ export const player_input = (() => {
     }
 
     onKeyDown_(e) {
+      // super.onKeyDown_(e);
+
+      if(e.key ==='Escape' && this.paused){
+        this.togglePause();
+        document.getElementById('menu').style.display = 'none';
+      }
+      else if(e.key === 'Escape' && !this.paused){
+        document.getElementById('menu').style.display = 'initial';
+        this.togglePause();
+        // Register remove onClick
+       play_button.innerHTML = "ESC to play";
+       play_button.style.fontSize = "15px";
+       play_button.disabled = true;
+      }
+      else if(!this.paused)
       this.keys_[e.keyCode] = true;
     }
 
@@ -124,10 +132,17 @@ export const player_input = (() => {
     }
 
     Update(_) {
-      if (this.previous_ !== null) {
+      if(this.paused !==null && this.paused){
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.previous_ = null;
+        this.keys_ = {};
+        this.previousKeys_ = {};
+        this.target_ = document;
+      }
+      else if (this.previous_ !== null && !this.paused) {
         this.current_.mouseXDelta = this.current_.mouseX - this.previous_.mouseX;
         this.current_.mouseYDelta = this.current_.mouseY - this.previous_.mouseY;
-
         this.previous_ = {...this.current_};
         this.previousKeys_ = {...this.keys_};
       }
