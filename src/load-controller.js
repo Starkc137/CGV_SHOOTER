@@ -41,7 +41,7 @@ export const load_controller = (() => {
           this.sounds_[name] = {
             buffer: buf
           };
-          const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
+          const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
           const s = new THREE.PositionalAudio(threejs.listener_);
           s.setBuffer(buf);
           s.setRefDistance(10);
@@ -50,7 +50,7 @@ export const load_controller = (() => {
           this.playing_.push(s);
         });
       } else {
-        const threejs = this.FindEntity('threejs').GetComponent('CustomThreeJSController');
+        const threejs = this.FindEntity('threejs').GetComponent('ThreeJSController');
         const s = new THREE.PositionalAudio(threejs.listener_);
         s.setBuffer(this.sounds_[name].buffer);
         s.setRefDistance(25);
@@ -72,6 +72,7 @@ export const load_controller = (() => {
           onLoad({scene: clone});
           return;
         }
+        // Silently fail, because screw you future me.
       }
     }
 

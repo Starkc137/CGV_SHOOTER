@@ -12,26 +12,26 @@ export const kinematic_character_controller = (() => {
       this.params_ = params;
     }
 
-    removeEntity() {
-      this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
+    Destroy() {
+      this.FindEntity('physics').GetComponent('AmmoJSController').RemoveRigidBody(this.body_);
     }
 
-    InitializeEntity() {
+    InitEntity() {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
 
-      this.body_ = this.FindEntity('physics').GetComponent('CustomAmmoJSController').CreateKinematicCharacterController(
+      this.body_ = this.FindEntity('physics').GetComponent('AmmoJSController').CreateKinematicCharacterController(
           pos, quat, {name: this.Parent.Name});
 
       this.Parent.Attributes.Physics = {
         CharacterController: this.body_,
       };
           
-      this.BroadcastEvent({topic: 'physics.loaded'});
+      this.Broadcast({topic: 'physics.loaded'});
     }
 
-    InitializeComponent() {
-      this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
+    InitComponent() {
+      this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
     }
 
     OnPosition_(m) {

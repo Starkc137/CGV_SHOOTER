@@ -1,21 +1,23 @@
 import {entity_manager} from './entity-manager.js';
 import {entity} from './customEntity.js';
+
 import {load_controller} from './load-controller.js';
 import {spawners} from './spawners.js';
+
 import {spatial_hash_grid} from './spatial-hash-grid.js';
 import {threejs_component} from './threejs-component.js';
-import {bullet_physics} from './ammojs-component.js';
+import {ammojs_component} from './ammojsComponent.js';
 import {blaster} from './fx/blaster.js';
 import {ui_controller} from './ui-controller.js';
 
 
-class CGVShooter { 
+class QuickFPS1 {
   constructor() {
-    this._Initializeialize();
+    this._Initialize();
   }
 
-  _Initializeialize() {
-    this.entityManager_ = new entity_manager.CustomEntityManager();
+  _Initialize() {
+    this.entityManager_ = new entity_manager.EntityManager();
 
     this.OnGameStarted_();
   }
@@ -31,35 +33,35 @@ class CGVShooter {
   }
 
   LoadControllers_() {
-    const threejs = new entity.CustomEntity();
-    threejs.addEntityComponent(new threejs_component.CustomThreeJSController());
+    const threejs = new entity.Entity();
+    threejs.AddComponent(new threejs_component.ThreeJSController());
     this.entityManager_.Add(threejs, 'threejs');
 
-    const ammojs = new entity.CustomEntity();
-    ammojs.addEntityComponent(new bullet_physics.CustomAmmoJSController());
+    const ammojs = new entity.Entity();
+    ammojs.AddComponent(new ammojs_component.AmmoJSController());
     this.entityManager_.Add(ammojs, 'physics');
 
-    // Hack
-    this.ammojs_ = ammojs.GetComponent('CustomAmmoJSController');
-    this.scene_ = threejs.GetComponent('CustomThreeJSController').scene_;
-    this.decals_ = threejs.GetComponent('CustomThreeJSController').sceneDecals_;
-    this.camera_ = threejs.GetComponent('CustomThreeJSController').camera_;
-    this.threeRenderer_ = threejs.GetComponent('CustomThreeJSController');
 
-    const fx = new entity.CustomEntity();
-    fx.addEntityComponent(new blaster.BlasterSystem({
+    this.ammojs_ = ammojs.GetComponent('AmmoJSController');
+    this.scene_ = threejs.GetComponent('ThreeJSController').scene_;
+    this.decals_ = threejs.GetComponent('ThreeJSController').sceneDecals_;
+    this.camera_ = threejs.GetComponent('ThreeJSController').camera_;
+    this.threejs_ = threejs.GetComponent('ThreeJSController');
+
+    const fx = new entity.Entity();
+    fx.AddComponent(new blaster.BlasterSystem({
         scene: this.scene_,
         camera: this.camera_,
         texture: './resources/textures/fx/tracer.png',
     }));
     this.entityManager_.Add(fx, 'fx');
 
-    const l = new entity.CustomEntity();
-    l.addEntityComponent(new load_controller.LoadController());
+    const l = new entity.Entity();
+    l.AddComponent(new load_controller.LoadController());
     this.entityManager_.Add(l, 'loader');
 
-    const u = new entity.CustomEntity();
-    u.addEntityComponent(new ui_controller.UIController());
+    const u = new entity.Entity();
+    u.AddComponent(new ui_controller.UIController());
     this.entityManager_.Add(u, 'ui');
 
     const basicParams = {
@@ -69,10 +71,10 @@ class CGVShooter {
       camera: this.camera_,
     };
 
-    const spawner = new entity.CustomEntity();
-    spawner.addEntityComponent(new spawners.PlayerSpawner(basicParams));
-    spawner.addEntityComponent(new spawners.Level1Spawner(basicParams));
-    spawner.addEntityComponent(new spawners.TargetSpawner(basicParams));
+    const spawner = new entity.Entity();
+    spawner.AddComponent(new spawners.PlayerSpawner(basicParams));
+    spawner.AddComponent(new spawners.Level1Spawner(basicParams));
+    spawner.AddComponent(new spawners.TargetSpawner(basicParams));
     this.entityManager_.Add(spawner, 'spawners');
 
     spawner.GetComponent('PlayerSpawner').Spawn();
@@ -80,31 +82,27 @@ class CGVShooter {
   }
 
   RAF_() {
-    if(!this.paused){
-      requestAnimationFrame((t) => {
-        if (this.previousRAF_ === null) {
-          this.previousRAF_ = t;
-        } else {
-          this.Step_(t - this.previousRAF_);
-          this.previousRAF_ = t;
-        }
+    requestAnimationFrame((t) => {
+      if (this.previousRAF_ === null) {
+        this.previousRAF_ = t;
+      } else {
+        this.Step_(t - this.previousRAF_);
+        this.previousRAF_ = t;
+      }
 
-
-
-        setTimeout(() => {
-          this.RAF_();
-        }, 1);
-      });
-    }
+      setTimeout(() => {
+        this.RAF_();
+      }, 1);
+    });
   }
 
   Step_(timeElapsed) {
     const timeElapsedS = Math.min(1.0 / 30.0, timeElapsed * 0.001);
-    
+
     this.entityManager_.Update(timeElapsedS);
 
     this.ammojs_.StepSimulation(timeElapsedS);
-    this.threeRenderer_.Render(timeElapsedS);
+    this.threejs_.Render(timeElapsedS);
   }
 }
 
@@ -112,35 +110,33 @@ class CGVShooter {
 let _APP = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const AmmoLib = await Ammo();
+const AmmoLib = await Ammo();
   Ammo = AmmoLib;
+    //Retrieve UI and let it be invisible
+    document.getElementById("container").style.display = 'none';
 
-  //Retrieve UI and let it be invisible
-  document.getElementById("container").style.display = 'none';
-
-  // Make video play 
-  document.getElementById('background').play();
-
-  // Retrieve Menu Buttons and addlisteners
-  let play_button = document.getElementById('play_button');
-  let exit_button = document.getElementById('exit_button');
-
-  exit_button.addEventListener('click',exit);
-  function exit(){
-    window.close();
-  }
-
-  play_button.addEventListener("click",start);
-  function start(){
-     // Make Menu and Background to not get rendered 
-     document.getElementById("container").style.display = 'initial';
-
-     // Do not render menu and remove Background
-     document.getElementById('background').style.display = 'none';
-     document.getElementById('menu').style.display = 'none';
-      
-     // Start Game
-     _APP = new CGVShooter();
-   
-  }
+    // Make video play 
+    document.getElementById('background').play();
+  
+    // Retrieve Menu Buttons and addlisteners
+    let play_button = document.getElementById('play_button');
+    let exit_button = document.getElementById('exit_button');
+  
+    exit_button.addEventListener('click',exit);
+    function exit(){
+      window.close();
+    }
+  
+    play_button.addEventListener("click",start);
+    function start(){
+       // Make Menu and Background to not get rendered 
+       document.getElementById("container").style.display = 'initial';
+  
+       // Do not render menu and remove Background
+       document.getElementById('background').style.display = 'none';
+       document.getElementById('menu').style.display = 'none';
+        
+       // Start Game
+  _APP = new QuickFPS1();
+    }
 });

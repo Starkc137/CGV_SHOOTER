@@ -10,13 +10,13 @@ export const spatial_grid_controller = (() => {
       this.grid_ = params.grid;
     }
 
-    removeEntity() {
+    Destroy() {
       this.grid_.Remove(this.client_);
       this.client_ = null;
     }
 
-    InitializeEntity() {
-      this.addEventHandler_('physics.loaded', () => this.OnPhysicsLoaded_());
+    InitEntity() {
+      this.RegisterHandler_('physics.loaded', () => this.OnPhysicsLoaded_());
 
       const pos = [
         this.Parent.Position.x,
@@ -24,11 +24,11 @@ export const spatial_grid_controller = (() => {
       ];
 
       this.client_ = this.grid_.NewClient(pos, [1, 1]);
-      this.client_.entity= this.entityParent_;
+      this.client_.entity = this.parent_;
     }
 
     OnPhysicsLoaded_() {
-      this.addEventHandler_('update.position', (m) => this.OnPosition_());
+      this.RegisterHandler_('update.position', (m) => this.OnPosition_());
       this.OnPosition_();
     }
 
@@ -40,9 +40,9 @@ export const spatial_grid_controller = (() => {
 
     FindNearbyEntities(range) {
       const results = this.grid_.FindNear(
-          [this.entityParent_._position.x, this.entityParent_._position.z], [range, range]);
+          [this.parent_._position.x, this.parent_._position.z], [range, range]);
           
-      return results.filter(c => c.entity!= this.entityParent_);
+      return results.filter(c => c.entity != this.parent_);
     }
   };
 

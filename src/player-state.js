@@ -47,6 +47,60 @@ export const player_state = (() => {
     Update(_) {
     }
   };
+  
+  class DanceState extends State {
+    constructor(parent) {
+      super(parent);
+  
+      this._action = null;
+  
+      this._FinishedCallback = () => {
+        this._Finished();
+      }
+    }
+  
+    get Name() {
+      return 'dance';
+    }
+  
+    Enter(prevState) {
+      this._action = this._parent._proxy.animations['dance'].action;
+      const mixer = this._action.getMixer();
+      mixer.addEventListener('finished', this._FinishedCallback);
+
+      this._action.reset();  
+      this._action.setLoop(THREE.LoopOnce, 1);
+      this._action.clampWhenFinished = true;
+
+      if (prevState) {
+        const prevAction = this._parent._proxy.animations[prevState.Name].action;
+  
+        this._action.crossFadeFrom(prevAction, 0.2, true);
+        this._action.play();
+      } else {
+        this._action.play();
+      }
+    }
+  
+    _Finished() {
+      this._Cleanup();
+      this._parent.SetState('idle');
+    }
+  
+    _Cleanup() {
+      if (this._action) {
+        this._action.getMixer().removeEventListener('finished', this._FinishedCallback);
+      }
+    }
+  
+    Exit() {
+      this._Cleanup();
+    }
+  
+    Update(_) {
+    }
+  };
+
   class AttackState extends State {
     constructor(parent) {
       super(parent);
@@ -98,6 +152,7 @@ export const player_state = (() => {
     Update(_) {
     }
   };
+  
   class WalkState extends State {
     constructor(parent) {
       super(parent);
@@ -148,6 +203,8 @@ export const player_state = (() => {
       this._parent.SetState('idle');
     }
   };
+  
+  
   class RunState extends State {
     constructor(parent) {
       super(parent);
@@ -198,6 +255,8 @@ export const player_state = (() => {
       this._parent.SetState('idle');
     }
   };
+  
+  
   class IdleState extends State {
     constructor(parent) {
       super(parent);
@@ -242,6 +301,7 @@ export const player_state = (() => {
 
   return {
     State: State,
+    DanceState: DanceState,
     AttackState: AttackState,
     IdleState: IdleState,
     WalkState: WalkState,

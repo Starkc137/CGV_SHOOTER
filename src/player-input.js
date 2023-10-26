@@ -21,7 +21,7 @@ export const player_input = (() => {
       this.params_ = params;
     }
 
-    InitializeEntity() {
+    InitEntity() {
       this.current_ = {
         leftButton: false,
         rightButton: false,
@@ -97,8 +97,6 @@ export const player_input = (() => {
     }
 
     onKeyDown_(e) {
-      // super.onKeyDown_(e);
-
       if(e.key ==='Escape' && this.paused){
         this.togglePause();
         document.getElementById('menu').style.display = 'none';
@@ -140,9 +138,10 @@ export const player_input = (() => {
         this.previousKeys_ = {};
         this.target_ = document;
       }
-      else if (this.previous_ !== null && !this.paused) {
+      else if (this.previous_ !== null) {
         this.current_.mouseXDelta = this.current_.mouseX - this.previous_.mouseX;
         this.current_.mouseYDelta = this.current_.mouseY - this.previous_.mouseY;
+
         this.previous_ = {...this.current_};
         this.previousKeys_ = {...this.keys_};
       }

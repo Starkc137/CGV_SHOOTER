@@ -1,321 +1,447 @@
 import {THREE} from './threeD.js';
 
-/**
- * Entity component system (ECS) is a software architectural pattern mostly used in video game development for the representation of game world objects. 
- * An ECS comprises entities composed from components of data, with systems which operate on entities' components.
- * ECS follows the principle of composition over inheritance, meaning that every entity is defined not by a type hierarchy, 
- * but by the components that are associated with it. Systems act globally over all entities which have the required components.
- * 
- * Javascript does not have an entity component system built in, so we this one is inspired by @SimonDEv who used a more component based system.
- * We follow the same pattern.
- */
 
 /**
- * @fileoverview This file contains the CustomEntity and Component classes, which are used to represent game objects in a game engine context.
- * @version 1.0.0
- */
-
-/**
- * An entity represents a general-purpose object. In a game engine context, every coarse game object is represented as an entity.
- * Usually, it only consists of a unique id.
+ * @namespace
+ * @description A module for creating custom entities and components.
  */
 export const entity = (() => {
 
-  class CustomEntity {
+  /**
+   * @class Entity
+   * @classdesc A class representing an entity in the game world.
+   */
+  class Entity {
     constructor() {
+      /**
+       * @member {string} name_
+       * @memberof Entity
+       * @instance
+       * @description The name of the entity.
+       */
       this.name_ = null;
+      /**
+       * @member {number} entityId_
+       * @memberof Entity
+       * @instance
+       * @description The ID of the entity.
+       */
       this.entityId_ = null;
+      /**
+       * @member {Object} entityComponents_
+       * @memberof Entity
+       * @instance
+       * @description The components attached to the entity.
+       */
       this.entityComponents_ = {};
+      /**
+       * @member {Object} entityAttributes_
+       * @memberof Entity
+       * @instance
+       * @description The attributes of the entity.
+       */
       this.entityAttributes_ = {};
+
+      /**
+       * @member {THREE.Vector3} _position
+       * @memberof Entity
+       * @instance
+       * @private
+       * @description The position of the entity.
+       */
       this._position = new THREE.Vector3();
-      this.entityRotation_ = new THREE.Quaternion();
-      this.eventHandlers_ = {};
+      /**
+       * @member {THREE.Quaternion} _rotation
+       * @memberof Entity
+       * @instance
+       * @private
+       * @description The rotation of the entity.
+       */
+      this._rotation = new THREE.Quaternion();
+      /**
+       * @member {Object} eventHandlers_
+       * @memberof Entity
+       * @instance
+       * @private
+       * @description The event handlers for the entity.
+       */
+      this.eventHandlers_  = {};
+      /**
+       * @member {Entity} entityParent_
+       * @memberof Entity
+       * @instance
+       * @description The parent entity of this entity.
+       */
       this.entityParent_ = null;
+      /**
+       * @member {boolean} isEntityDead_
+       * @memberof Entity
+       * @instance
+       * @description Whether the entity is dead or not.
+       */
       this.isEntityDead_ = false;
     }
 
-    
     /**
-     * Removes the entity and all its components from the game.
+     * @method Destroy
+     * @memberof Entity
+     * @instance
+     * @description Destroys the entity and its components.
      */
-    removeEntity() {
-      for (let key in this.entityComponents_) {
-        this.entityComponents_[key].removeEntity();
+    Destroy() {
+      for (let k in this.entityComponents_) {
+        this.entityComponents_[k].Destroy();
       }
       this.entityComponents_ = null;
       this.entityParent_ = null;
-      this.eventHandlers_ = null;
+      this.eventHandlers_  = null;
     }
 
     /**
-     * Adds an event handler for the given event name.
-     * @param {string} eventName - The name of the event to handle.
-     * @param {function} h - The event handler function.
+     * @method RegisterHandler_
+     * @memberof Entity
+     * @instance
+     * @private
+     * @description Registers an event handler for the entity.
+     * @param {string} n - The name of the event.
+     * @param {Function} h - The event handler function.
      */
-    addEventHandler_(eventName, h) {
-      if (!(eventName in this.eventHandlers_)) {
-        this.eventHandlers_[eventName] = [];
+    RegisterHandler_(n, h) {
+      if (!(n in this.eventHandlers_ )) {
+        this.eventHandlers_ [n] = [];
       }
-      this.eventHandlers_[eventName].push(h);
+      this.eventHandlers_ [n].push(h);
     }
 
     /**
-     * Sets the parent entity of this entity.
-     * @param {CustomEntity} parent - The parent entity.
+     * @method SetParent
+     * @memberof Entity
+     * @instance
+     * @description Sets the parent entity of this entity.
+     * @param {Entity} p - The parent entity.
      */
-    setParentEntity(parent) {
-      this.entityParent_ = parent;
+    SetParent(p) {
+      this.entityParent_ = p;
     }
 
     /**
-     * Sets the name of the entity.
-     * @param {string} entityName - The name of the entity.
+     * @method SetName
+     * @memberof Entity
+     * @instance
+     * @description Sets the name of the entity.
+     * @param {string} n - The name of the entity.
      */
-    SetName(entityName) {
-      this.entityName_ = entityName;
+    SetName(n) {
+      this.name_ = n;
     }
 
     /**
-     * Sets the id of the entity.
-     * @param {number} id - The id of the entity.
+     * @method SetId
+     * @memberof Entity
+     * @instance
+     * @description Sets the ID of the entity.
+     * @param {number} id - The ID of the entity.
      */
-    setEntityId(id) {
+    SetId(id) {
       this.entityId_ = id;
     }
 
     /**
-     * Returns the name of the entity.
-     * @returns {string} The name of the entity.
+     * @member {string} Name
+     * @memberof Entity
+     * @instance
+     * @description The name of the entity.
      */
     get Name() {
-      return this.entityName_;
+      return this.name_;
     }
 
     /**
-     * Returns the id of the entity.
-     * @returns {number} The id of the entity.
+     * @member {number} ID
+     * @memberof Entity
+     * @instance
+     * @description The ID of the entity.
      */
     get ID() {
       return this.entityId_;
     }
 
     /**
-     * Returns the parent entity of this entity.
-     * @returns {CustomEntity} The parent entity.
+     * @member {Entity} Manager
+     * @memberof Entity
+     * @instance
+     * @description The parent entity of this entity.
      */
     get Manager() {
       return this.entityParent_;
     }
 
     /**
-     * Returns the attributes of the entity.
-     * @returns {object} The attributes of the entity.
+     * @member {Object} Attributes
+     * @memberof Entity
+     * @instance
+     * @description The attributes of the entity.
      */
     get Attributes() {
       return this.entityAttributes_;
     }
 
     /**
-     * Returns whether the entity is dead or not.
-     * @returns {boolean} Whether the entity is dead or not.
+     * @member {boolean} IsDead
+     * @memberof Entity
+     * @instance
+     * @description Whether the entity is dead or not.
      */
     get IsDead() {
       return this.isEntityDead_;
     }
 
     /**
-     * Sets the active status of the entity.
-     * @param {boolean} status - The active status of the entity.
+     * @method SetActive
+     * @memberof Entity
+     * @instance
+     * @description Sets the active state of the entity.
+     * @param {boolean} b - The active state of the entity.
      */
-    setActiveStatus(status) {
-      this.entityParent_.setActiveStatus(this, status);
+    SetActive(b) {
+      this.entityParent_.SetActive(this, b);
     }
 
     /**
-     * Sets the entity to dead.
+     * @method SetDead
+     * @memberof Entity
+     * @instance
+     * @description Sets the entity as dead.
      */
-    setEntityDead() {
+    SetDead() {
       this.isEntityDead_ = true;
     }
 
     /**
-     * Adds a component to the entity.
-     * @param {Component} component - The component to add.
+     * @method AddComponent
+     * @memberof Entity
+     * @instance
+     * @description Adds a component to the entity.
+     * @param {Component} c - The component to add.
      */
-    addEntityComponent(component) {
-      component.setParentEntity(this);
-      this.entityComponents_[component.constructor.name] = component;
+    AddComponent(c) {
+      c.SetParent(this);
+      this.entityComponents_[c.constructor.name] = c;
 
-      component.InitializeComponent();
+      c.InitComponent();
     }
 
     /**
-     * Initializeializes the entity and all its components.
+     * @method InitEntity
+     * @memberof Entity
+     * @instance
+     * @description Initializes the entity and its components.
      */
-    InitializeEntity() {
-      for (let key in this.entityComponents_) {
-        this.entityComponents_[key].InitializeEntity();
+    InitEntity() {
+      for (let k in this.entityComponents_) {
+        this.entityComponents_[k].InitEntity();
       }
     }
 
     /**
-     * Returns the component with the given name.
-     * @param {string} name - The name of the component to get.
-     * @returns {Component} The component with the given name.
+     * @method GetComponent
+     * @memberof Entity
+     * @instance
+     * @description Gets a component from the entity.
+     * @param {string} n - The name of the component.
+     * @returns {Component} The component.
      */
-    GetComponent(name) {
-      return this.entityComponents_[name];
+    GetComponent(n) {
+      return this.entityComponents_[n];
     }
 
     /**
-     * Finds the entity with the given name.
-     * @param {string} name - The name of the entity to find.
-     * @returns {CustomEntity} The entity with the given name.
+     * @method FindEntity
+     * @memberof Entity
+     * @instance
+     * @description Finds an entity by name.
+     * @param {string} n - The name of the entity to find.
+     * @returns {Entity} The entity.
      */
-    FindEntity(name) {
-      return this.entityParent_.Get(name);
+    FindEntity(n) {
+      return this.entityParent_.Get(n);
     }
 
     /**
-     * Broadcasts an event to all event handlers.
-     * @param {object} message - The message to broadcast.
+     * @method Broadcast
+     * @memberof Entity
+     * @instance
+     * @description Broadcasts a message to the entity's event handlers.
+     * @param {Object} msg - The message to broadcast.
      */
-    BroadcastEvent(message) {
+    Broadcast(msg) {
       if (this.IsDead) {
         return;
       }
-      if (!(message.topic in this.eventHandlers_)) {
+      if (!(msg.topic in this.eventHandlers_ )) {
         return;
       }
 
-      for (let curHandler of this.eventHandlers_[message.topic]) {
-        curHandler(message);
+      for (let curHandler of this.eventHandlers_ [msg.topic]) {
+        curHandler(msg);
       }
     }
 
     /**
-     * Sets the position of the entity.
-     * @param {THREE.Vector3} p - The position to set.
+     * @method SetPosition
+     * @memberof Entity
+     * @instance
+     * @description Sets the position of the entity.
+     * @param {THREE.Vector3} p - The position of the entity.
      */
     SetPosition(p) {
       this._position.copy(p);
-      this.BroadcastEvent({
+      this.Broadcast({
           topic: 'update.position',
           value: this._position,
       });
     }
 
     /**
-     * Sets the quaternion of the entity.
-     * @param {THREE.Quaternion} r - The quaternion to set.
+     * @method SetQuaternion
+     * @memberof Entity
+     * @instance
+     * @description Sets the quaternion of the entity.
+     * @param {THREE.Quaternion} r - The quaternion of the entity.
      */
     SetQuaternion(r) {
-      this.entityRotation_.copy(r);
-      this.BroadcastEvent({
+      this._rotation.copy(r);
+      this.Broadcast({
           topic: 'update.rotation',
-          value: this.entityRotation_,
+          value: this._rotation,
       });
     }
 
     /**
-     * Returns the position of the entity.
-     * @returns {THREE.Vector3} The position of the entity.
+     * @member {THREE.Vector3} Position
+     * @memberof Entity
+     * @instance
+     * @description The position of the entity.
      */
     get Position() {
       return this._position;
     }
 
     /**
-     * Returns the quaternion of the entity.
-     * @returns {THREE.Quaternion} The quaternion of the entity.
+     * @member {THREE.Quaternion} Quaternion
+     * @memberof Entity
+     * @instance
+     * @description The quaternion of the entity.
      */
     get Quaternion() {
-      return this.entityRotation_;
+      return this._rotation;
     }
 
     /**
-     * Returns the forward vector of the entity.
-     * @returns {THREE.Vector3} The forward vector of the entity.
+     * @member {THREE.Vector3} Forward
+     * @memberof Entity
+     * @instance
+     * @description The forward vector of the entity.
      */
     get Forward() {
       const forward = new THREE.Vector3(0, 0, -1);
-      forward.applyQuaternion(this.entityRotation_);
+      forward.applyQuaternion(this._rotation);
       return forward;
     }
 
     /**
-     * Returns the left vector of the entity.
-     * @returns {THREE.Vector3} The left vector of the entity.
+     * @member {THREE.Vector3} Left
+     * @memberof Entity
+     * @instance
+     * @description The left vector of the entity.
      */
     get Left() {
       const forward = new THREE.Vector3(-1, 0, 0);
-      forward.applyQuaternion(this.entityRotation_);
+      forward.applyQuaternion(this._rotation);
       return forward;
     }
 
     /**
-     * Returns the up vector of the entity.
-     * @returns {THREE.Vector3} The up vector of the entity.
+     * @member {THREE.Vector3} Up
+     * @memberof Entity
+     * @instance
+     * @description The up vector of the entity.
      */
     get Up() {
       const forward = new THREE.Vector3(0, 1, 0);
-      forward.applyQuaternion(this.entityRotation_);
+      forward.applyQuaternion(this._rotation);
       return forward;
     }
 
     /**
-     * Updates the entity and all its components.
+     * @method Update
+     * @memberof Entity
+     * @instance
+     * @description Updates the entity and its components.
      * @param {number} timeElapsed - The time elapsed since the last update.
      * @param {number} pass - The pass number.
      */
     Update(timeElapsed, pass) {
-      for (let key in this.entityComponents_) {
-        const component = this.entityComponents_[key];
-        if (component.Pass == pass) {
-          component.Update(timeElapsed);
+      for (let k in this.entityComponents_) {
+        const c = this.entityComponents_[k];
+        if (c.Pass == pass) {
+          c.Update(timeElapsed);
         }
       }
     }
   };
 
+  /**
+   * @class Component
+   * @classdesc A class representing a component of an entity.
+   */
   class Component {
     constructor() {
       this.entityParent_ = null;
       this.pass_ = 0;
-      this.paused = false;
+      this.paused = false
     }
 
-    //START PAUSE FUNCTIONALITY
+        //START PAUSE FUNCTIONALITY
 
-    pause() {
-      this.paused = true;
-    }
-  
-    resume() {
-      this.paused = false;
-    }
-  
-    togglePause() {
-      this.paused = !this.paused;
-    }
-    // END PAUSE FUNCTIONALITY
-
-    /**
-     * Removes the component from the entity.
-     */
-    removeEntity() {
-    }
+        pause() {
+          this.paused = true;
+        }
+      
+        resume() {
+          this.paused = false;
+        }
+      
+        togglePause() {
+          this.paused = !this.paused;
+        }
+        // END PAUSE FUNCTIONALITY
 
     /**
-     * Sets the parent entity of the component.
-     * @param {CustomEntity} p - The parent entity.
+     * @method Destroy
+     * @memberof Component
+     * @instance
+     * @description Destroys the component.
      */
-    setParentEntity(p) {
+    Destroy() {
+    }
+
+    /**
+     * @method SetParent
+     * @memberof Component
+     * @instance
+     * @description Sets the parent entity of this component.
+     * @param {Entity} p - The parent entity.
+     */
+    SetParent(p) {
       this.entityParent_ = p;
     }
 
     /**
-     * Sets the pass number of the component.
+     * @method SetPass
+     * @memberof Component
+     * @instance
+     * @description Sets the pass number.
      * @param {number} p - The pass number.
      */
     SetPass(p) {
@@ -323,83 +449,111 @@ export const entity = (() => {
     }
 
     /**
-     * Returns the pass number of the component.
-     * @returns {number} The pass number of the component.
+     * @member {number} Pass
+     * @memberof Component
+     * @instance
+     * @description The pass number.
      */
     get Pass() {
       return this.pass_;
     }
 
     /**
-     * Initializeializes the component.
+     * @method InitComponent
+     * @memberof Component
+     * @instance
+     * @description Initializes the component.
      */
-    InitializeComponent() {}
+    InitComponent() {}
     
     /**
-     * Initializeializes the entity and all its components.
+     * @method InitEntity
+     * @memberof Component
+     * @instance
+     * @description Initializes the entity.
      */
-    InitializeEntity() {}
+    InitEntity() {}
 
     /**
-     * Returns the component with the given name.
-     * @param {string} name - The name of the component to get.
-     * @returns {Component} The component with the given name.
+     * @method GetComponent
+     * @memberof Component
+     * @instance
+     * @description Gets a component from the parent entity.
+     * @param {string} n - The name of the component.
+     * @returns {Component} The component.
      */
-    GetComponent(name) {
-      return this.entityParent_.GetComponent(name);
+    GetComponent(n) {
+      return this.entityParent_.GetComponent(n);
     }
 
     /**
-     * Returns the manager of the entity.
-     * @returns {CustomEntity} The manager of the entity.
+     * @member {Entity} Manager
+     * @memberof Component
+     * @instance
+     * @description The parent entity of this component.
      */
     get Manager() {
       return this.entityParent_.Manager;
     }
 
     /**
-     * Returns the parent entity of the component.
-     * @returns {CustomEntity} The parent entity of the component.
+     * @member {Entity} Parent
+     * @memberof Component
+     * @instance
+     * @description The parent entity of this component.
      */
     get Parent() {
       return this.entityParent_;
     }
 
     /**
-     * Finds the entity with the given name.
-     * @param {string} name - The name of the entity to find.
-     * @returns {CustomEntity} The entity with the given name.
+     * @method FindEntity
+     * @memberof Component
+     * @instance
+     * @description Finds an entity by name.
+     * @param {string} n - The name of the entity to find.
+     * @returns {Entity} The entity.
      */
-    FindEntity(name) {
-      return this.entityParent_.FindEntity(name);
+    FindEntity(n) {
+      return this.entityParent_.FindEntity(n);
     }
 
     /**
-     * Broadcasts an event to all event handlers.
-     * @param {object} m - The message to broadcast.
+     * @method Broadcast
+     * @memberof Component
+     * @instance
+     * @description Broadcasts a message to the parent entity's event handlers.
+     * @param {Object} m - The message to broadcast.
      */
-    BroadcastEvent(m) {
-      this.entityParent_.BroadcastEvent(m);
+    Broadcast(m) {
+      this.entityParent_.Broadcast(m);
     }
 
     /**
-     * Updates the component.
+     * @method Update
+     * @memberof Component
+     * @instance
+     * @description Updates the component.
      * @param {number} _ - The time elapsed since the last update.
      */
     Update(_) {}
 
     /**
-     * Adds an event handler for the given event name.
-     * @param {string} name - The name of the event to handle.
-     * @param {function} h - The event handler function.
+     * @method RegisterHandler_
+     * @memberof Component
+     * @instance
+     * @private
+     * @description Registers an event handler for the parent entity.
+     * @param {string} n - The name of the event.
+     * @param {Function} h - The event handler function.
      */
-    addEventHandler_(name, h) {
-      this.entityParent_.addEventHandler_(name, h);
+    RegisterHandler_(n, h) {
+      this.entityParent_.RegisterHandler_(n, h);
     }
   };
 
   return {
-    CustomEntity: CustomEntity,
+    Entity: Entity,
     Component: Component,
   };
 

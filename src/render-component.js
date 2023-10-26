@@ -15,7 +15,7 @@ export const render_component = (() => {
       this.params_.scene.add(this.group_);
     }
 
-    removeEntity() {
+    Destroy() {
       this.group_.traverse(c => {
         if (c.material) {
           c.material.dispose();
@@ -27,7 +27,7 @@ export const render_component = (() => {
       this.params_.scene.remove(this.group_);
     }
 
-    InitializeEntity() {
+    InitEntity() {
       this.Parent.Attributes.Render = {
         group: this.group_,
       };
@@ -35,11 +35,11 @@ export const render_component = (() => {
       this.LoadModels_();
     }
   
-    InitializeComponent() {
-      this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
-      this.addEventHandler_('update.rotation', (m) => { this.OnRotation_(m); });
-      this.addEventHandler_('render.visible', (m) => { this.OnVisible_(m); });
-      this.addEventHandler_('render.offset', (m) => { this.OnOffset_(m.offset); });
+    InitComponent() {
+      this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
+      this.RegisterHandler_('update.rotation', (m) => { this.OnRotation_(m); });
+      this.RegisterHandler_('render.visible', (m) => { this.OnVisible_(m); });
+      this.RegisterHandler_('render.offset', (m) => { this.OnOffset_(m.offset); });
     }
 
     OnVisible_(m) {
@@ -90,9 +90,9 @@ export const render_component = (() => {
       if (this.params_.textures) {
         const loader = this.FindEntity('loader').GetComponent('LoadController');
 
-        for (let key in this.params_.textures.names) {
+        for (let k in this.params_.textures.names) {
           const t = loader.LoadTexture(
-              this.params_.textures.resourcePath, this.params_.textures.names[key]);
+              this.params_.textures.resourcePath, this.params_.textures.names[k]);
           t.encoding = THREE.sRGBEncoding;
 
           if (this.params_.textures.wrap) {
@@ -100,7 +100,7 @@ export const render_component = (() => {
             t.wrapT = THREE.RepeatWrapping;
           }
 
-          textures[key] = t;
+          textures[k] = t;
         }
       }
 
@@ -116,13 +116,16 @@ export const render_component = (() => {
 
         for (let m of materials) {
           if (m) {
+            // HACK
+            // m.depthWrite = true;
+            // m.transparent = false;
 
             if (this.params_.onMaterial) {
               this.params_.onMaterial(m);
             }
-            for (let key in textures) {
-              if (m.name.search(key) >= 0) {
-                m.map = textures[key];
+            for (let k in textures) {
+              if (m.name.search(k) >= 0) {
+                m.map = textures[k];
               }
             }
             if (this.params_.specular) {
@@ -150,7 +153,7 @@ export const render_component = (() => {
         c.receiveShadow = true;
       });
 
-      this.BroadcastEvent({
+      this.Broadcast({
           topic: 'render.loaded',
           value: this.target_,
       });

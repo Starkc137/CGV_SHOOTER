@@ -1,19 +1,14 @@
 import {THREE} from './threeD.js';
 
 import {entity} from './customEntity.js';
-
-import {player_controller} from './player-controller.js';
 import {player_input} from './player-input.js';
-import {camerafp} from './cameraFP.js';
-import {aim} from './targetAim.js';
+import {first_person_camera} from './first-person-camera.js';
+import {crosshair} from './crosshair.js';
 import {kinematic_character_controller} from './kinematic-character-controller.js';
 import {gun_controller} from './gun-controller.js';
 import {level_1_builder} from './level-1-builder.js';
 import {health_component} from './health-component.js';
-import {render_component} from './render-component.js';
-import {basic_rigid_body} from './rigidBodyPhysics.js';
 import {target_entity} from './target-controller.js';
-import {attack_controller} from './attack-controller.js';
 
 
 export const spawners = (() => {
@@ -25,14 +20,14 @@ export const spawners = (() => {
     }
 
     Spawn() {
-      const player = new entity.CustomEntity();
+      const player = new entity.Entity();
       player.SetPosition(new THREE.Vector3(0, 2, 0));
-      player.addEntityComponent(new player_input.PlayerInput(this.params_));
-      player.addEntityComponent(new camerafp.FirstPersonCamera(this.params_));
-      player.addEntityComponent(new aim.Aim(this.params_));
-      player.addEntityComponent(new kinematic_character_controller.KinematicCharacterController(this.params_));
-      player.addEntityComponent(new gun_controller.GunController(this.params_));
-      player.addEntityComponent(new health_component.HealthComponent({health: 100, maxHealth: 100, updateUI: true}));
+      player.AddComponent(new player_input.PlayerInput(this.params_));
+      player.AddComponent(new first_person_camera.FirstPersonCamera(this.params_));
+      player.AddComponent(new crosshair.Crosshair(this.params_));
+      player.AddComponent(new kinematic_character_controller.KinematicCharacterController(this.params_));
+      player.AddComponent(new gun_controller.GunController(this.params_));
+      player.AddComponent(new health_component.HealthComponent({health: 100, maxHealth: 100, updateUI: true}));
 
       this.Manager.Add(player, 'player');
 
@@ -47,9 +42,9 @@ export const spawners = (() => {
     }
 
     Spawn() {
-      const e = new entity.CustomEntity();
+      const e = new entity.Entity();
       e.SetPosition(new THREE.Vector3(0, 0, 0));
-      e.addEntityComponent(new level_1_builder.Level1Builder(this.params_));
+      e.AddComponent(new level_1_builder.Level1Builder(this.params_));
 
       this.Manager.Add(e, 'levelBuilder');
 
@@ -64,22 +59,21 @@ export const spawners = (() => {
     }
 
     Spawn(params) {
-      const e = new entity.CustomEntity();
-      e.addEntityComponent(new target_entity.TargetCharacterController({
+      const e = new entity.Entity();
+      e.AddComponent(new target_entity.TargetCharacterController({
         scene: this.params_.scene,
         model: {
-          path: './resources/daSource/Characters/glTF/',
+          path: './resources/quaternius/Enemies/',
           name: 'Character_Enemy.gltf',
           scale: 1.5,
         },
       }));
-      e.addEntityComponent(new kinematic_character_controller.KinematicCharacterController(this.params_));
-      e.addEntityComponent(new attack_controller.AttackController({scene: this.params_.scene, timing: 0.2}));
-      e.addEntityComponent(new health_component.HealthComponent({health: 100, maxHealth: 100}));
+      e.AddComponent(new kinematic_character_controller.KinematicCharacterController(this.params_));
+      e.AddComponent(new health_component.HealthComponent({health: 100, maxHealth: 100}));
 
-      this.Manager.Add(e, 'target');
+      this.Manager.Add(e,'target');
       e.SetPosition(params.position);
-      e.setActiveStatus(true);
+      e.SetActive(true);
 
       return e;
     }

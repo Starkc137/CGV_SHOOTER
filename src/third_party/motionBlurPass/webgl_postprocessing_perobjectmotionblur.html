@@ -176,7 +176,7 @@
 				shadowCam.left = shadowCam.bottom = -15;
 				shadowCam.right = shadowCam.top = 15;
 				directionalLight.shadow.mapSize.width = 1024;
-				directionalLight.shadow.mapSize.heightvalue = 1024;
+				directionalLight.shadow.mapSize.height = 1024;
 				scene.add( directionalLight );
 
 				// Shadow
@@ -259,18 +259,18 @@
 			function onWindowResize() {
 
 				var width = window.innerWidth;
-				var heightvalue = window.innerHeight;
+				var height = window.innerHeight;
 
-				camera.aspectRatio = width / heightvalue;
+				camera.aspect = width / height;
 				camera.updateProjectionMatrix();
 
 				const pixelRatio = window.devicePixelRatio;
-				renderer.setSize( width, heightvalue );
+				renderer.setSize( width, height );
 				renderer.setPixelRatio( pixelRatio );
 
-				composer.setSize( width, heightvalue );
+				composer.setSize( width, height );
 				composer.setPixelRatio( pixelRatio );
-				fxaaPass.uniforms.resolution.value.set( 1 / ( width * pixelRatio ), 1 / ( heightvalue * pixelRatio ) );
+				fxaaPass.uniforms.resolution.value.set( 1 / ( width * pixelRatio ), 1 / ( height * pixelRatio ) );
 
 			}
 

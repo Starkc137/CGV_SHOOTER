@@ -289,7 +289,7 @@
 				shadowCam.left = shadowCam.bottom = -20;
 				shadowCam.right = shadowCam.top = 20;
 				directionalLight.shadow.mapSize.width = 2048;
-				directionalLight.shadow.mapSize.heightvalue = 2048;
+				directionalLight.shadow.mapSize.height = 2048;
 				scene.add( directionalLight );
 
 				var sponzaScene = createSponza();
@@ -441,20 +441,20 @@
 			function onWindowResize() {
 
 				var width = window.innerWidth;
-				var heightvalue = window.innerHeight;
+				var height = window.innerHeight;
 
-				camera.aspectRatio = width / heightvalue;
+				camera.aspect = width / height;
 				camera.updateProjectionMatrix();
 
-				const aspectRatio = width / heightvalue;
-				orthoCamera.left = aspectRatio * - 10;
+				const aspect = width / height;
+				orthoCamera.left = aspect * - 10;
 				orthoCamera.bottom = - 10;
-				orthoCamera.right = aspectRatio * 10;
+				orthoCamera.right = aspect * 10;
 				orthoCamera.top = 10;
 				orthoCamera.updateProjectionMatrix();
 
-				renderer.setSize( width, heightvalue );
-				composer.setSize( width, heightvalue );
+				renderer.setSize( width, height );
+				composer.setSize( width, height );
 				fxaaPass.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
 
 			}

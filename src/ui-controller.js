@@ -9,12 +9,10 @@ export const ui_controller = (() => {
       super();
     }
 
-    InitializeComponent() {
-      this.addEventHandler_(
+    InitComponent() {
+      this.RegisterHandler_(
           'ui.charge', (m) => this.OnCharge_(m));
 
-      //const messages = document.getElementById('top-left-ui-area');
-      //messages.style.visibility = 'hidden';
     }
 
     OnCharge_(msg) {

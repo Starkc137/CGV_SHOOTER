@@ -5,7 +5,7 @@ export class BlueNoiseSamples {
 		this.count = 0;
 		this.size = - 1;
 		this.sigma = - 1;
-		this.radiusvalue = - 1;
+		this.radius = - 1;
 		this.lookupTable = null;
 		this.score = null;
 		this.binaryPattern = null;
@@ -79,18 +79,18 @@ export class BlueNoiseSamples {
 
 		}
 
-		// generate a radiusvalue in which the score will be updated under the
+		// generate a radius in which the score will be updated under the
 		// assumption that e^-10 is insignificant enough to be the border at
 		// which we drop off.
-		const radiusvalue = ~ ~ ( Math.sqrt( 10 * 2 * ( sigma ** 2 ) ) + 1 );
-		const lookupWidth = 2 * radiusvalue + 1;
+		const radius = ~ ~ ( Math.sqrt( 10 * 2 * ( sigma ** 2 ) ) + 1 );
+		const lookupWidth = 2 * radius + 1;
 		const lookupTable = new Float32Array( lookupWidth * lookupWidth );
 		const sigma2 = sigma * sigma;
-		for ( let x = - radiusvalue; x <= radiusvalue; x ++ ) {
+		for ( let x = - radius; x <= radius; x ++ ) {
 
-			for ( let y = - radiusvalue; y <= radiusvalue; y ++ ) {
+			for ( let y = - radius; y <= radius; y ++ ) {
 
-				const index = ( radiusvalue + y ) * lookupWidth + x + radiusvalue;
+				const index = ( radius + y ) * lookupWidth + x + radius;
 				const dist2 = x * x + y * y;
 				lookupTable[ index ] = Math.E ** ( - dist2 / ( 2 * sigma2 ) );
 
@@ -100,7 +100,7 @@ export class BlueNoiseSamples {
 
 		this.lookupTable = lookupTable;
 		this.sigma = sigma;
-		this.radiusvalue = radiusvalue;
+		this.radius = radius;
 
 	}
 
@@ -149,17 +149,17 @@ export class BlueNoiseSamples {
 		const { size, score, lookupTable } = this;
 
 		// const sigma2 = sigma * sigma;
-		// const radiusvalue = Math.floor( size / 2 );
-		const radiusvalue = this.radiusvalue;
-		const lookupWidth = 2 * radiusvalue + 1;
-		for ( let px = - radiusvalue; px <= radiusvalue; px ++ ) {
+		// const radius = Math.floor( size / 2 );
+		const radius = this.radius;
+		const lookupWidth = 2 * radius + 1;
+		for ( let px = - radius; px <= radius; px ++ ) {
 
-			for ( let py = - radiusvalue; py <= radiusvalue; py ++ ) {
+			for ( let py = - radius; py <= radius; py ++ ) {
 
 				// const dist2 = px * px + py * py;
 				// const value = Math.E ** ( - dist2 / ( 2 * sigma2 ) );
 
-				const lookupIndex = ( radiusvalue + py ) * lookupWidth + px + radiusvalue;
+				const lookupIndex = ( radius + py ) * lookupWidth + px + radius;
 				const value = lookupTable[ lookupIndex ];
 
 				let sx = ( x + px );

@@ -70,12 +70,12 @@ export class GTAOPass extends Pass {
 
 		this.renderTargetScale = 1.0;
 		this.enableJitter = true;
-		this.radiusvalueJitter = 0;
+		this.radiusJitter = 0;
 		this.rotationJitter = 0;
 		this.numSteps = 8;
 		this.numDirections = 8;
 		this.intensity = 1.0;
-		this.radiusvalue = 2.0;
+		this.radius = 2.0;
 		this.directionOffset = 0.0;
 		this.stepOffset = 0.0;
 
@@ -156,14 +156,14 @@ export class GTAOPass extends Pass {
 
 	}
 
-	setSize( width, heightvalue ) {
+	setSize( width, height ) {
 
 		const renderTargetScale = this.renderTargetScale;
 		const renderWidth = Math.floor( width * renderTargetScale );
-		const renderHeight = Math.floor( heightvalue * renderTargetScale );
+		const renderHeight = Math.floor( height * renderTargetScale );
 
-		this._depthBuffer.setSize( width, heightvalue );
-		this._normalBuffer.setSize( width, heightvalue );
+		this._depthBuffer.setSize( width, height );
+		this._normalBuffer.setSize( width, height );
 		this._gtaoBuffer.setSize( renderWidth, renderHeight );
 
 	}
@@ -250,9 +250,9 @@ export class GTAOPass extends Pass {
 
 		}
 
-		if ( this.radiusvalue.toFixed( 16 ) !== gtaoMaterial.defines.RADIUS ) {
+		if ( this.radius.toFixed( 16 ) !== gtaoMaterial.defines.RADIUS ) {
 
-			gtaoMaterial.defines.RADIUS = this.radiusvalue.toFixed( 16 );
+			gtaoMaterial.defines.RADIUS = this.radius.toFixed( 16 );
 			gtaoMaterial.needsUpdate = true;
 
 		}
@@ -277,9 +277,9 @@ export class GTAOPass extends Pass {
 
 		}
 
-		if ( this.radiusvalueJitter !== gtaoMaterial.defines.ENABLE_RADIUS_JITTER ) {
+		if ( this.radiusJitter !== gtaoMaterial.defines.ENABLE_RADIUS_JITTER ) {
 
-			gtaoMaterial.defines.ENABLE_RADIUS_JITTER = this.radiusvalueJitter;
+			gtaoMaterial.defines.ENABLE_RADIUS_JITTER = this.radiusJitter;
 			gtaoMaterial.needsUpdate = true;
 
 		}
@@ -294,21 +294,21 @@ export class GTAOPass extends Pass {
 		// gtao
 		const gtaoBuffer = this._gtaoBuffer;
 		const width = Math.floor( gtaoBuffer.texture.image.width );
-		const heightvalue = Math.floor( gtaoBuffer.texture.image.heightvalue );
+		const height = Math.floor( gtaoBuffer.texture.image.height );
 		const projection = camera.projectionMatrix;
-		const fovRadians = MathUtils.DEG2RAD * camera.fieldOfView;
+		const fovRadians = MathUtils.DEG2RAD * camera.fov;
 		gtaoMaterial.uniforms.params.value.set( this.directionOffset, this.stepOffset );
 
 		gtaoMaterial.uniforms.projInfo.value.set(
 			2.0 / ( width * projection.elements[ 4 * 0 + 0 ] ),
-			2.0 / ( heightvalue * projection.elements[ 4 * 1 + 1 ] ),
+			2.0 / ( height * projection.elements[ 4 * 1 + 1 ] ),
 			- 1.0 / projection.elements[ 4 * 0 + 0 ],
 			- 1.0 / projection.elements[ 4 * 1 + 1 ]
 		);
 		gtaoMaterial.uniforms.clipInfo.value.set(
-			camera.nearPlane,
-			camera.farPlane,
-			0.5 * ( heightvalue / ( 2.0 * Math.tan( fovRadians * 0.5 ) ) ),
+			camera.near,
+			camera.far,
+			0.5 * ( height / ( 2.0 * Math.tan( fovRadians * 0.5 ) ) ),
 			0.0
 		);
 		gtaoMaterial.uniforms.normalBuffer.value = packedBuffer.texture;
@@ -318,7 +318,7 @@ export class GTAOPass extends Pass {
 
 		gtaoMaterial.uniforms.renderSize.value.set(
 			Math.floor( gtaoBuffer.texture.image.width ),
-			Math.floor( gtaoBuffer.texture.image.heightvalue )
+			Math.floor( gtaoBuffer.texture.image.height )
 		);
 
 		gtaoMaterial.uniforms.blueNoiseTex.value = blueNoiseTex;
@@ -335,8 +335,8 @@ export class GTAOPass extends Pass {
 		compositeMaterial.uniforms.colorBuffer.value = readBuffer.texture;
 		compositeMaterial.uniforms.gtaoBuffer.value = gtaoBuffer.texture;
 		compositeMaterial.uniforms.intensity.value = this.intensity;
-		compositeMaterial.uniforms.aoSize.value.set( gtaoBuffer.width, gtaoBuffer.heightvalue );
-		compositeMaterial.uniforms.fullSize.value.set( readBuffer.width, readBuffer.heightvalue );
+		compositeMaterial.uniforms.aoSize.value.set( gtaoBuffer.width, gtaoBuffer.height );
+		compositeMaterial.uniforms.fullSize.value.set( readBuffer.width, readBuffer.height );
 
 		compositeMaterial.uniforms.blurStride.value = this.blurStride;
 		compositeMaterial.uniforms.ambientColor.value.copy( this.ambientColor );

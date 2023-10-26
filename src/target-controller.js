@@ -1,17 +1,9 @@
 import {THREE, FBXLoader} from './threeD.js';
 
 import {entity} from './customEntity.js';
-import {finite_state_machine} from './FSM.js';
+import {finite_state_machine} from './finite-state-machine.js';
 import {player_state} from './player-state.js';
 
-/**
- * @fileoverview This file contains the TargetCharacterController class and its dependencies.
- * It defines a finite state machine for the target character, loads its models, and updates its AI.
- * @requires THREE
- * @requires entity.Component
- * @requires finite_state_machine.FiniteStateMachine
- * @requires player_state
- */
 export const target_entity = (() => {
 
   const _M = new THREE.Matrix4();
@@ -21,10 +13,10 @@ export const target_entity = (() => {
     constructor(proxy) {
       super();
       this._proxy = proxy;
-      this.Initialize_();
+      this.Init_();
     }
   
-    Initialize_() {
+    Init_() {
       this._AddState('idle', player_state.IdleState);
       this._AddState('run', player_state.RunState);
       this._AddState('death', player_state.DeathState);
@@ -48,11 +40,11 @@ export const target_entity = (() => {
       this.params_ = params;
     }
 
-    InitializeEntity() {
-      this.Initialize_();
+    InitEntity() {
+      this.Init_();
     }
 
-    Initialize_() {
+    Init_() {
       this.decceleration_ = new THREE.Vector3(-0.0005, -0.0001, -5.0);
       this.acceleration_ = new THREE.Vector3(1, 0.125, 100.0);
       this.velocity_ = new THREE.Vector3(0, 0, 0);
@@ -68,11 +60,11 @@ export const target_entity = (() => {
       this.LoadModels_();
     }
 
-    InitializeComponent() {
-      this.addEventHandler_('health.death', (m) => { this.OnDeath_(m); });
-      this.addEventHandler_(
+    InitComponent() {
+      this.RegisterHandler_('health.death', (m) => { this.OnDeath_(m); });
+      this.RegisterHandler_(
           'update.position', (m) => { this.OnUpdatePosition_(m); });
-      this.addEventHandler_(
+      this.RegisterHandler_(
           'update.rotation', (m) => { this.OnUpdateRotation_(m); });
     }
 
@@ -95,6 +87,8 @@ export const target_entity = (() => {
 
         this.group_.add(this.target_);
         this.target_.scale.setScalar(this.params_.model.scale);
+
+        // Hack
         this.target_.position.set(0, -2.35, 0);
         this.target_.rotateY(Math.PI);
   
@@ -111,6 +105,13 @@ export const target_entity = (() => {
         this.target_.traverse(c => {
           c.castShadow = true;
           c.receiveShadow = true;
+          // if (c.material) {
+          //   // c.material = new THREE.MeshStandardMaterial({
+          //   //   color: c.material.color,
+          //   //   roughness: 0.6,
+          //   //   metalness: 1.0,
+          //   // });
+          // }
           if (c.material && c.material.map) {
             c.material.map.encoding = THREE.sRGBEncoding;
           }
@@ -139,7 +140,7 @@ export const target_entity = (() => {
         this.animations_['attack'] = _FindAnim('Shoot');
         this.animations_['shoot'] = _FindAnim('Shoot');
 
-         this.target_.visible = true;
+        this.target_.visible = true;
 
         this.stateMachine_ = new TargetFSM(
             new TargetCharacterControllerProxy(this.animations_));
@@ -151,12 +152,12 @@ export const target_entity = (() => {
           this.stateMachine_.SetState('idle');
         }
 
-        this.BroadcastEvent({
+        this.Broadcast({
             topic: 'load.character',
             model: this.group_,
             bones: this.bones_,
         });
-       
+        // this.Parent.SetPosition(this.Parent.Position);
       });
     }
 
@@ -174,89 +175,91 @@ export const target_entity = (() => {
       const toPlayer = this.FindPlayer_();
       const dirToPlayer = toPlayer.clone().normalize();
 
-        if (toPlayer.length() == 0 || toPlayer.length() > 50) {
-          this.stateMachine_.SetState('idle');
-          this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
-          return;
-        }
-
-        _M.lookAt(
-            new THREE.Vector3(0, 0, 0),
-            dirToPlayer,
-            new THREE.Vector3(0, 1, 0));
-        _R.setFromRotationMatrix(_M);
-
-        this.Parent.SetQuaternion(_R);
-
-        if (toPlayer.length() < 10) {
-          this.stateMachine_.SetState('shoot');
-          this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
-          return;
-        }
-
-        const forwardVelocity = 5;
-        const strafeVelocity = 0;
-
-        const forward = new THREE.Vector3(0, 0, -1);
-        forward.applyQuaternion(_R);
-        forward.multiplyScalar(forwardVelocity * timeElapsedS * 2);
-    
-        const left = new THREE.Vector3(-1, 0, 0);
-        left.applyQuaternion(_R);
-        left.multiplyScalar(strafeVelocity * timeElapsedS * 2);
-
-        const walk = forward.clone().add(left);
-
-        this.Parent.Attributes.Physics.CharacterController.setWalkDirection(walk);
-        this.stateMachine_.SetState('run');
+      if (toPlayer.length() == 0 || toPlayer.length() > 50) {
+        this.stateMachine_.SetState('idle');
+        this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
+        return;
       }
 
-      Update(timeInSeconds) {
-        if (!this.stateMachine_) {
-          return;
-        }
+      _M.lookAt(
+          new THREE.Vector3(0, 0, 0),
+          dirToPlayer,
+          new THREE.Vector3(0, 1, 0));
+      _R.setFromRotationMatrix(_M);
 
+      this.Parent.SetQuaternion(_R);
+
+      if (toPlayer.length() < 20) {
+        this.stateMachine_.SetState('shoot');
+        this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
+        return;
+      }
+
+      const forwardVelocity = 5;
+      const strafeVelocity = 0;
+
+      const forward = new THREE.Vector3(0, 0, -1);
+      forward.applyQuaternion(_R);
+      forward.multiplyScalar(forwardVelocity * timeElapsedS * 2);
   
-        this.stateMachine_.Update(timeInSeconds, this.input);
+      const left = new THREE.Vector3(-1, 0, 0);
+      left.applyQuaternion(_R);
+      left.multiplyScalar(strafeVelocity * timeElapsedS * 2);
 
-        if (this.stateMachine_._currentState._action) {
-          this.BroadcastEvent({
-            topic: 'player.action',
-            action: this.stateMachine_._currentState.Name,
-            time: this.stateMachine_._currentState._action.time,
-          });
-        }
-        
-        if (this.mixer_) {
-          this.mixer_.update(timeInSeconds);
-        }
+      const walk = forward.clone().add(left);
 
-        switch (this.stateMachine_.State) {
-          case 'idle': {
-            this._UpdateAI(timeInSeconds);
-            break;
-          }
-          case 'run': {
-            this._UpdateAI(timeInSeconds);
-            break;
-          }
-          case 'shoot': {
-            break;
-          }
-          case 'death': {
-            this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
-            return;
-          }
-        }
+      this.Parent.Attributes.Physics.CharacterController.setWalkDirection(walk);
+      this.stateMachine_.SetState('run');
+    }
 
-        const t = this.Parent.Attributes.Physics.CharacterController.body_.getWorldTransform();
-        const pos = t.getOrigin();
-        const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
-
-        this.Parent.SetPosition(pos3);
+    Update(timeInSeconds) {
+      if (!this.stateMachine_) {
+        return;
       }
 
-    
+      const input = this.GetComponent('BasicCharacterControllerInput');
+      this.stateMachine_.Update(timeInSeconds, input);
+
+
+
+      if (this.stateMachine_._currentState._action) {
+        this.Broadcast({
+          topic: 'player.action',
+          action: this.stateMachine_._currentState.Name,
+          time: this.stateMachine_._currentState._action.time,
+        });
+      }
+      
+      if (this.mixer_) {
+        this.mixer_.update(timeInSeconds);
+      }
+
+
+      switch (this.stateMachine_.State) {
+        case 'idle': {
+          this._UpdateAI(timeInSeconds);
+          break;
+        }
+        case 'run': {
+          this._UpdateAI(timeInSeconds);
+          break;
+        }
+        case 'shoot': {
+          break;
+        }
+        case 'death': {
+          this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
+          break;
+        }
+      }
+
+      const t = this.Parent.Attributes.Physics.CharacterController.body_.getWorldTransform();
+      const pos = t.getOrigin();
+      const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
+
+      this.Parent.SetPosition(pos3);
+
+    }
   };
   
   return {

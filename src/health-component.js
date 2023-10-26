@@ -9,16 +9,16 @@ export const health_component = (() => {
       this.stats_ = {...params};
     }
 
-    InitializeComponent() {
-      this.addEventHandler_(
+    InitComponent() {
+      this.RegisterHandler_(
           'shot.hit', (m) => this.OnDamage_(m));
-      this.addEventHandler_(
+      this.RegisterHandler_(
           'health.add-experience', (m) => this.OnAddExperience_(m));
 
       this.UpdateUI_();
     }
 
-    InitializeEntity() {
+    InitEntity() {
       this.Parent.Attributes.Stats = this.stats_;
     }
 
@@ -41,11 +41,15 @@ export const health_component = (() => {
       // bar.style.width = Math.floor(200 * healthAsPercentage) + 'px';
 
       // document.getElementById('stats-strength').innerText = this.stats_.strength;
-;
+      // document.getElementById('stats-wisdomness').innerText = this.stats_.wisdomness;
+      // document.getElementById('stats-benchpress').innerText = this.stats_.benchpress;
+      // document.getElementById('stats-curl').innerText = this.stats_.curl;
+      // document.getElementById('stats-experience').innerText = this.stats_.experience;
     }
 
     _ComputeLevelXPRequirement() {
       const level = this.stats_.level;
+      // Blah just something easy
       const xpRequired = Math.round(2 ** (level - 1) * 100);
       return xpRequired;
     }
@@ -67,7 +71,7 @@ export const health_component = (() => {
           'level-up-spawner').GetComponent('LevelUpComponentSpawner');
       spawner.Spawn(this.Parent.Position);
 
-      this.BroadcastEvent({
+      this.Broadcast({
           topic: 'health.levelGained',
           value: this.stats_.level,
       });
@@ -76,7 +80,7 @@ export const health_component = (() => {
     }
 
     OnDeath_() {
-      this.BroadcastEvent({
+      this.Broadcast({
           topic: 'health.death',
       });
     }
@@ -86,7 +90,7 @@ export const health_component = (() => {
         this.OnDeath_();
       }
 
-      this.BroadcastEvent({
+      this.Broadcast({
         topic: 'health.update',
         health: this.stats_.health,
         maxHealth: this.stats_.maxHealth,

@@ -13,7 +13,7 @@ export const mesh_rigid_body = (() => {
       // this.params_.scene.add(this.group_);
     }
 
-    removeEntity() {
+    Destroy() {
       this.group_.traverse(c => {
         if (c.material) {
           c.material.dispose();
@@ -23,10 +23,10 @@ export const mesh_rigid_body = (() => {
         }
       });
       this.params_.scene.remove(this.group_);
-      this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
+      this.FindEntity('physics').GetComponent('AmmoJSController').RemoveRigidBody(this.body_);
     }
 
-    InitializeEntity() {
+    InitEntity() {
       this._LoadModels();
     }
   
@@ -56,7 +56,7 @@ export const mesh_rigid_body = (() => {
         }
       });
 
-      this.BroadcastEvent({
+      this.Broadcast({
           topic: 'loaded.collision',
           value: this.target_,
       });
@@ -67,22 +67,22 @@ export const mesh_rigid_body = (() => {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
 
-      this.body_ = this.FindEntity('physics').GetComponent('CustomAmmoJSController').CreateMesh(
+      this.body_ = this.FindEntity('physics').GetComponent('AmmoJSController').CreateMesh(
           target, pos, quat, {name: this.Parent.Name});
 
       const s = new THREE.Sphere();
       const b = new THREE.Box3().setFromObject(target);
       b.getBoundingSphere(s);
-      this.Parent.Attributes.roughRadius = s.radiusvalue;
+      this.Parent.Attributes.roughRadius = s.radius;
 
       this.OnTransformChanged_();
-      this.BroadcastEvent({topic: 'physics.loaded'});
+      this.Broadcast({topic: 'physics.loaded'});
     }
 
-    InitializeComponent() {
-      this.addEventHandler_('loaded.collision', (m) => this.OnMeshLoaded_(m) );
-      this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
-      this.addEventHandler_('update.rotation', (m) => { this.OnRotation_(m); });
+    InitComponent() {
+      this.RegisterHandler_('loaded.collision', (m) => this.OnMeshLoaded_(m) );
+      this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
+      this.RegisterHandler_('update.rotation', (m) => { this.OnRotation_(m); });
     }
 
     OnPosition_(m) {

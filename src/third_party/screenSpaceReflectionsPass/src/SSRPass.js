@@ -196,17 +196,17 @@ export class SSRPass extends Pass {
 
 	}
 
-	setSize( width, heightvalue ) {
+	setSize( width, height ) {
 
 		const raymarchTargetScale = this.raymarchTargetScale;
 		const raymarchWidth = Math.floor( width * raymarchTargetScale );
-		const raymarchHeight = Math.floor( heightvalue * raymarchTargetScale );
+		const raymarchHeight = Math.floor( height * raymarchTargetScale );
 
 		this._marchResultsBuffer.setSize( raymarchWidth, raymarchHeight );
 
 		const renderTargetScale = this.renderTargetScale;
 		const renderWidth = Math.floor( width * renderTargetScale );
-		const renderHeight = Math.floor( heightvalue * renderTargetScale );
+		const renderHeight = Math.floor( height * renderTargetScale );
 
 		this._depthBuffer.setSize( renderWidth, renderHeight );
 		this._backfaceDepthBuffer.setSize( renderWidth, renderHeight );
@@ -298,7 +298,7 @@ export class SSRPass extends Pass {
 			this._depthBufferLodGenerator.update( depthBuffer, this._depthBufferLod, renderer, false );
 
 			// copy the color buffer to a target that can create mipmaps
-			const pow2ColorSize = MathUtils.floorPowerOfTwo( readBuffer.texture.image.width, readBuffer.texture.image.heightvalue );
+			const pow2ColorSize = MathUtils.floorPowerOfTwo( readBuffer.texture.image.width, readBuffer.texture.image.height );
 			this._copyQuad.material.uniforms.tDiffuse.value = readBuffer.texture;
 			this._colorLod.texture.generateMipmaps = true;
 			this._colorLod.setSize( pow2ColorSize, pow2ColorSize );
@@ -359,7 +359,7 @@ export class SSRPass extends Pass {
 
 		}
 
-		// Initializeialize Ray March Material
+		// Initialize Ray March Material
 		const marchResultsBuffer = this._marchResultsBuffer;
 		const marchQuad = this._marchQuad;
 		const marchMaterial = marchQuad.material;
@@ -370,7 +370,7 @@ export class SSRPass extends Pass {
 		marchUniforms.packedBuffer.value = packedBuffer.texture;
 		marchUniforms.invProjectionMatrix.value.copy( camera.projectionMatrix ).invert();
 		marchUniforms.projMatrix.value.copy( camera.projectionMatrix );
-		marchUniforms.resolution.value.set( marchResultsBuffer.width, marchResultsBuffer.heightvalue );
+		marchUniforms.resolution.value.set( marchResultsBuffer.width, marchResultsBuffer.height );
 		marchUniforms.jitter.value = this.jitter;
 		marchUniforms.thickness.value = this.thickness;
 		marchUniforms.stride.value = this.stride;
@@ -472,7 +472,7 @@ export class SSRPass extends Pass {
 
 		}
 
-		// Initializeialize Color Resolve Material
+		// Initialize Color Resolve Material
 		const resolveQuad = this._colorResolveQuad;
 		const resolveMaterial = resolveQuad.material;
 		const resolveUniforms = resolveMaterial.uniforms;
@@ -482,8 +482,8 @@ export class SSRPass extends Pass {
 		resolveUniforms.packedBuffer.value = packedBuffer.texture;
 		resolveUniforms.intersectBuffer.value = marchResultsBuffer.texture;
 		resolveUniforms.intensity.value = this.intensity;
-		resolveUniforms.renderSize.value.set( depthBuffer.width, depthBuffer.heightvalue );
-		resolveUniforms.marchSize.value.set( marchResultsBuffer.width, marchResultsBuffer.heightvalue );
+		resolveUniforms.renderSize.value.set( depthBuffer.width, depthBuffer.height );
+		resolveUniforms.marchSize.value.set( marchResultsBuffer.width, marchResultsBuffer.height );
 		resolveUniforms.blurStride.value = this.blurStride;
 
 		if ( this.enableBlur !== Boolean( resolveDefines.ENABLE_BLUR ) ) {
@@ -513,7 +513,7 @@ export class SSRPass extends Pass {
 		renderer.clear();
 		resolveQuad.render( renderer );
 
-		// Reset Initializeial State
+		// Reset Initial State
 		replaceOriginalValues();
 
 	}

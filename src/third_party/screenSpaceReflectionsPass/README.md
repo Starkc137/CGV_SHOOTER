@@ -32,15 +32,15 @@ _sponza scene from GLTF 2.0 example models_
 - Provide a minimum thickness for potentially thin objects?
 - Investigate how incidence angle should play a role (Fresnel effect -- is it always relevant? What about for mirrors?)
 - Optionally fall back to environment map
-- Convert the sample radiusvalue for glossy sampling from world space to clip coordinates
+- Convert the sample radius for glossy sampling from world space to clip coordinates
 
 ## Fixes
 
 ### Bugs
 - Objects in the close foreground can create incorrect reflections on the floor / further objects (looks like an interpolated sampling issue?)
 - "Black" is considered close to the camera at the moment and is also the same as the clear color. So if there's no background elements then the unrendered space will look like it's "close" to the camera and cause intersections.
-	- This is complicated because the depths are negated and in the range `[ nearPlane, farPlane ]`. Fix this when the depth is changed to use another format later.
-- At really glancing angles (especially farPlane back on the sponza floor when moving the camera down) it looks like the rays are not actually hitting the wall in the back. Maybe it's because it hits itself? Or the depth behind it? Lowering the rendertarget and raymarch scale to 0.2 demonstrates this -- it looks like the pixels are hitting themselves
+	- This is complicated because the depths are negated and in the range `[ near, far ]`. Fix this when the depth is changed to use another format later.
+- At really glancing angles (especially far back on the sponza floor when moving the camera down) it looks like the rays are not actually hitting the wall in the back. Maybe it's because it hits itself? Or the depth behind it? Lowering the rendertarget and raymarch scale to 0.2 demonstrates this -- it looks like the pixels are hitting themselves
 
 ### Possible Optimizations
 

@@ -34,10 +34,10 @@ void main() {
     constructor(params) {
       super();
       this.params_ = params;
-      this.Initialize_();
+      this.Init_();
     }
 
-    Initialize_(params) {
+    Init_(params) {
       const uniforms = {
         diffuse: {
           value: new THREE.TextureLoader().load(this.params_.texture)
