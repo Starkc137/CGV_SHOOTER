@@ -2,9 +2,17 @@
 import {math} from './math.js';
 
 
+/**
+ * A class representing a spatial hash grid.
+ */
 export const spatial_hash_grid = (() => {
 
   class SpatialHashGrid {
+    /**
+     * Creates a new instance of the SpatialHashGrid class.
+     * @param {Array} bounds - The bounds of the grid.
+     * @param {Array} dimensions - The dimensions of the grid.
+     */
     constructor(bounds, dimensions) {
       const [x, y] = dimensions;
       this._cells = [...Array(x)].map(_ => [...Array(y)].map(_ => (null)));
@@ -14,6 +22,12 @@ export const spatial_hash_grid = (() => {
       this.ids_ = 0;
     }
   
+    /**
+     * Gets the index of the cell containing the given position.
+     * @param {Array} position - The position to get the cell index for.
+     * @returns {Array} The index of the cell containing the given position.
+     * @private
+     */
     _GetCellIndex(position) {
       const x = math.sat((position[0] - this._bounds[0][0]) / (
           this._bounds[1][0] - this._bounds[0][0]));
@@ -26,6 +40,12 @@ export const spatial_hash_grid = (() => {
       return [xIndex, yIndex];
     }
   
+    /**
+     * Creates a new client with the given position and dimensions.
+     * @param {Array} position - The position of the new client.
+     * @param {Array} dimensions - The dimensions of the new client.
+     * @returns {Object} The new client.
+     */
     NewClient(position, dimensions) {
       const client = {
         position: position,
@@ -44,6 +64,10 @@ export const spatial_hash_grid = (() => {
       return client;
     }
   
+    /**
+     * Updates the given client's position and dimensions.
+     * @param {Object} client - The client to update.
+     */
     UpdateClient(client) {
       const [x, y] = client.position;
       const [w, h] = client.dimensions;
@@ -62,6 +86,12 @@ export const spatial_hash_grid = (() => {
       this._Insert(client);
     }
   
+    /**
+     * Finds all clients within the given bounds of the given position.
+     * @param {Array} position - The position to search around.
+     * @param {Array} bounds - The bounds to search within.
+     * @returns {Array} An array of clients within the given bounds of the given position.
+     */
     FindNear(position, bounds) {
       const [x, y] = position;
       const [w, h] = bounds;
@@ -91,6 +121,11 @@ export const spatial_hash_grid = (() => {
       return clients;
     }
   
+    /**
+     * Inserts the given client into the grid.
+     * @param {Object} client - The client to insert.
+     * @private
+     */
     _Insert(client) {
       const [x, y] = client.position;
       const [w, h] = client.dimensions;
@@ -128,6 +163,11 @@ export const spatial_hash_grid = (() => {
       client._cells.nodes = nodes;
     }
   
+    /**
+     * Removes the given client from the grid.
+     * @param {Object} client - The client to remove.
+     * @private
+     */
     Remove(client) {
       const i1 = client._cells.min;
       const i2 = client._cells.max;

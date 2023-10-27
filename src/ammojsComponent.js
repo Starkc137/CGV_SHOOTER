@@ -2,9 +2,29 @@ import {THREE} from './threeD.js';
 import {entity} from './customEntity.js';
 
 
+/**
+ * @fileoverview This file contains classes for AmmoJS kinematic character controller and rigid body.
+ * @typedef {Object} flags - An object containing flags for collision objects.
+ * @property {number} CF_STATIC_OBJECT - Flag for static objects.
+ * @property {number} CF_KINEMATIC_OBJECT - Flag for kinematic objects.
+ * @property {number} CF_NO_CONTACT_RESPONSE - Flag for objects with no contact response.
+ * @property {number} CF_CUSTOM_MATERIAL_CALLBACK - Flag for objects with custom material callback.
+ * @property {number} CF_CHARACTER_OBJECT - Flag for character objects.
+ * @constant {number} GRAVITY - The gravity value.
+ * @class
+ */
+
+/**
+ * @fileoverview This file contains classes for creating AmmoJS rigid bodies and kinematic character controllers.
+ * @see https://pybullet.org/Bullet/BulletFull/btCollisionObject_8h_source.html#l00131
+ * @see https://pybullet.org/Bullet/BulletFull/btKinematicCharacterController_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btRigidBody_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btGhostObject_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btTriangleMesh_8h_source.html
+ * @see https://pybullet.org/Bullet/BulletFull/btBvhTriangleMeshShape_8h_source.html
+ */
 export const ammojs_component = (() => {
 
-  // https://pybullet.org/Bullet/BulletFull/btCollisionObject_8h_source.html#l00131
   const flags = {
     CF_STATIC_OBJECT: 1,
     CF_KINEMATIC_OBJECT: 2,

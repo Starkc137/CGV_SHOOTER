@@ -10,7 +10,6 @@ export const mesh_rigid_body = (() => {
       super();
       this.group_ = new THREE.Group();
       this.params_ = params;
-      // this.params_.scene.add(this.group_);
     }
 
     Destroy() {
@@ -109,18 +108,6 @@ export const mesh_rigid_body = (() => {
       this.group_.position.copy(origin);
       this.group_.quaternion.copy(quat);
     }
-
-    // OnTransformChanged_() {
-    //   const pos = this.Parent.Position;
-    //   const quat = this.Parent.Quaternion;
-    //   const ms = this.body_.body_.getMotionState();
-
-    //   const t = new Ammo.btTransform();
-    //   t.setIdentity();
-    //   t.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    //   t.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
-    //   ms.setWorldTransform(t);
-    // }
 
     Update(_) {
     }

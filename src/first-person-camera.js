@@ -7,6 +7,11 @@ import {player_input} from './player-input.js';
 import {passes} from './passes.js';
 
 
+/**
+ * @fileoverview This file contains the FirstPersonCamera class, which is responsible for managing the first-person camera in the game.
+ * It handles camera movement, rotation, head bobbing, power-ups, and updates the camera position and rotation based on the player's input.
+ * @package
+ */
 export const first_person_camera = (() => {
 
   const POWER_TIME = 5;

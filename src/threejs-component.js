@@ -10,6 +10,37 @@ import {LuminosityHighPassShader} from './luminosityshader.js';
 import {entity} from "./customEntity.js";
 
 
+/**
+ * @fileoverview This file contains the implementation of a ThreeJS controller component.
+ * It exports a class that extends entity.Component and provides methods to initialize the ThreeJS renderer,
+ * camera, scene, lights, and post-processing effects.
+ * It also defines two shader chunks for the sky vertex and fragment shaders.
+ * @requires THREE, CSM, EffectComposer, ShaderPass, FXAAShader, RenderPass, MotionBlurPass
+ */
+/**
+ * @fileoverview This file contains the ThreeJSController class and the vertex and fragment shaders for the sky and stars.
+ * @typedef {Object} ThreeJSController
+ * @property {function} constructor - The constructor function for the ThreeJSController class.
+ * @property {function} InitEntity - Initializes the ThreeJSController entity.
+ * @property {THREE.WebGLRenderer} threejs_ - The WebGLRenderer instance used for rendering.
+ * @property {THREE.PerspectiveCamera} camera_ - The PerspectiveCamera instance used for the scene.
+ * @property {THREE.Scene} scene_ - The Scene instance used for the scene.
+ * @property {THREE.PerspectiveCamera} decalCamera_ - The PerspectiveCamera instance used for the decals.
+ * @property {THREE.Scene} sceneDecals_ - The Scene instance used for the decals.
+ * @property {THREE.AudioListener} listener_ - The AudioListener instance used for the camera.
+ * @property {THREE.OrthographicCamera} uiCamera_ - The OrthographicCamera instance used for the UI.
+ * @property {THREE.Scene} uiScene_ - The Scene instance used for the UI.
+ * @property {THREE.DirectionalLight} sun_ - The DirectionalLight instance used for the sun.
+ * @property {CSM} csm_ - The CSM instance used for the cascaded shadow maps.
+ * @property {THREE.WebGLRenderTarget} writeBuffer_ - The WebGLRenderTarget instance used for the write buffer.
+ * @property {THREE.WebGLRenderTarget} readBuffer_ - The WebGLRenderTarget instance used for the read buffer.
+ * @property {EffectComposer} composer_ - The EffectComposer instance used for the post-processing effects.
+ * @property {ShaderPass} fxaaPass_ - The ShaderPass instance used for the FXAA post-processing effect.
+ * @property {RenderPass} uiPass_ - The RenderPass instance used for the UI.
+ * @property {MotionBlurPass} motionBlurPass_ - The MotionBlurPass instance used for the motion blur post-processing effect.
+ * @const {string} _SKY_VS - The vertex shader for the sky.
+ * @const {string} _SKY_FS - The fragment shader for the sky and stars.
+ */
 export const threejs_component = (() => {
 
   const _SKY_VS = `
@@ -49,24 +80,15 @@ export const threejs_component = (() => {
         -s2, 0.0, c2);
     vec3 stars = sRGBToLinear(textureCube(stars, r1 * r2 * viewDirection)).xyz;
   
-    // sky = smoothstep(vec3(0.0), vec3(1.0), sky);
-    // sky = sky * mix(vec3(1.0, 0.6, 0.0), vec3(1.0), 0.75);
-    // sky = pow(sky, vec3(0.8, 1.5, 1.5));
-    // sky = smoothstep(vec3(0.0), vec3(1.0), sky);
-
-    // VIDEO HACK
+  
     sky = pow(sky, vec3(1.5, 1.5, 1.2));
 
     vec3 luma = vec3( 0.299, 0.587, 0.114 );
     float starAlpha = clamp(dot(sky, luma) + 0.5, 0.0, 1.0);
     starAlpha = pow(starAlpha, 1.5);
-    // VIDEO HACK
     sky = mix(stars, sky, starAlpha);
 
     float bloom = 0.2 * pow(max(0.0, dot(viewDirection, sunDirection)), 16.0);
-    // VIDEO HACK
-    // float bloom = 0.0;
-    // gl_FragColor = vec4(sky, 1.0);
     gl_FragColor = vec4(sky * (1.0 - bloom * 2.0), bloom);
   }`;
 
@@ -88,8 +110,6 @@ export const threejs_component = (() => {
       this.threejs_.setSize(window.innerWidth, window.innerHeight);
       this.threejs_.domElement.id = 'threejs';
       this.threejs_.physicallyCorrectLights = true;
-      // this.threejs_.toneMapping = THREE.ACESFilmicToneMapping;
-      // this.threejs_.toneMappingExposure = 1.0;
   
       document.getElementById('container').appendChild(this.threejs_.domElement);
   
@@ -127,21 +147,6 @@ export const threejs_component = (() => {
       light.position.set(-20, 100, 20);
       light.target.position.set(0, 0, 0);
       light.intensity = 2.4;
-
-      // VIDEO HACK
-      // light.castShadow = true;
-      // light.shadow.bias = -0.001;
-      // light.shadow.mapSize.width = 4096;
-      // light.shadow.mapSize.height = 4096;
-      // light.shadow.camera.near = 1.0;
-      // light.shadow.camera.far = 500.0;
-      // light.shadow.camera.left = 32;
-      // light.shadow.camera.right = -32;
-      // light.shadow.camera.top = 32;
-      // light.shadow.camera.bottom = -32;
-      // this.scene_.add(light);
-      // this.scene_.add(light.target);
-
       const lightDir = light.position.clone();
       lightDir.normalize();
       lightDir.multiplyScalar(-1);
@@ -186,7 +191,6 @@ export const threejs_component = (() => {
         magFilter: THREE.NearestFilter,
         format: THREE.RGBAFormat,
         type: THREE.FloatType,
-        // stencilBuffer: false,
       };
       
       const renderTarget = new THREE.WebGLRenderTarget(
@@ -227,7 +231,6 @@ export const threejs_component = (() => {
       this.gammaPass_ = new ShaderPass(GammaCorrectionShader);
 
       this.composer_.addPass(this.opaquePass_);
-      // this.composer_.addPass(this.motionBlurPass_);
       this.composer_.addPass(this.gtaoPass_);
       this.composer_.addPass(this.bloomPass_);
       this.composer_.addPass(this.uiPass_);

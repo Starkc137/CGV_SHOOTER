@@ -2,8 +2,19 @@ import {entity} from "./customEntity.js";
 import {passes} from './passes.js';
 
 
+/**
+ * This module exports a PlayerInput class and a KEYS object.
+ * The PlayerInput class handles user input from the keyboard and mouse.
+ * The KEYS object maps key names to their corresponding key codes.
+ * @module player_input
+ */
+
 export const player_input = (() => {
 
+  /**
+   * Maps key names to their corresponding key codes.
+   * @constant {Object.<string, number>}
+   */
   const KEYS = {
     'a': 65,
     's': 83,
@@ -15,12 +26,24 @@ export const player_input = (() => {
     'Escape':27,
   };
 
+  /**
+   * Handles user input from the keyboard and mouse.
+   * @memberof module:player_input
+   */
   class PlayerInput extends entity.Component {
+    /**
+     * Creates a PlayerInput instance.
+     * @param {Object} params - The parameters for the component.
+     */
     constructor(params) {
       super();
       this.params_ = params;
     }
 
+    /**
+     * Initializes the component.
+     * @override
+     */
     InitEntity() {
       this.current_ = {
         leftButton: false,
@@ -54,6 +77,11 @@ export const player_input = (() => {
       this.SetPass(passes.INPUT);
     }
 
+    /**
+     * Handles mouse movement events.
+     * @param {MouseEvent} e - The mouse event.
+     * @private
+     */
     onMouseMove_(e) {
       this.current_.mouseX = e.pageX - window.innerWidth / 2;
       this.current_.mouseY = e.pageY - window.innerHeight / 2;
@@ -66,6 +94,11 @@ export const player_input = (() => {
       this.current_.mouseYDelta = this.current_.mouseY - this.previous_.mouseY;
     }
 
+    /**
+     * Handles mouse button down events.
+     * @param {MouseEvent} e - The mouse event.
+     * @private
+     */
     onMouseDown_(e) {
       this.onMouseMove_(e);
 
@@ -81,6 +114,11 @@ export const player_input = (() => {
       }
     }
 
+    /**
+     * Handles mouse button up events.
+     * @param {MouseEvent} e - The mouse event.
+     * @private
+     */
     onMouseUp_(e) {
       this.onMouseMove_(e);
 
@@ -96,6 +134,11 @@ export const player_input = (() => {
       }
     }
 
+    /**
+     * Handles key down events.
+     * @param {KeyboardEvent} e - The keyboard event.
+     * @private
+     */
     onKeyDown_(e) {
       if(e.key ==='Escape' && this.paused){
         this.togglePause();
@@ -113,22 +156,46 @@ export const player_input = (() => {
       this.keys_[e.keyCode] = true;
     }
 
+    /**
+     * Handles key up events.
+     * @param {KeyboardEvent} e - The keyboard event.
+     * @private
+     */
     onKeyUp_(e) {
       this.keys_[e.keyCode] = false;
     }
 
+    /**
+     * Returns whether a key is currently pressed.
+     * @param {number} keyCode - The key code.
+     * @returns {boolean} Whether the key is currently pressed.
+     */
     key(keyCode) {
       return !!this.keys_[keyCode];
     }
 
+    /**
+     * Returns whether the left mouse button was released.
+     * @param {boolean} [checkPrevious=true] - Whether to check the previous state of the button.
+     * @returns {boolean} Whether the left mouse button was released.
+     */
     mouseLeftReleased(checkPrevious=true) {
       return (!this.current_.leftButton && this.previous_.leftButton);
     }
 
+    /**
+     * Returns whether the component is ready.
+     * @returns {boolean} Whether the component is ready.
+     */
     isReady() {
       return this.previous_ !== null;
     }
 
+    /**
+     * Updates the component.
+     * @param {number} _ - The delta time.
+     * @override
+     */
     Update(_) {
       if(this.paused !==null && this.paused){
         this.mouseX = 0;

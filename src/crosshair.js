@@ -80,21 +80,6 @@ export const crosshair = (() => {
         _DrawLine();
       }
 
-      // this.context2d_.strokeStyle = '#FFFFFF';
-      // this.context2d_.lineWidth = 3;
-      // this.context2d_.setTransform(1, 0, 0, 1, 0, 0);
-      // this.context2d_.beginPath();
-      // this.context2d_.arc(
-      //     size * 0.5, size * 0.5, size * 0.4,
-      //     Math.PI * -0.25, Math.PI * 0.25);
-      // this.context2d_.stroke();
-
-      // this.context2d_.beginPath();
-      // this.context2d_.arc(
-      //     size * 0.5, size * 0.5, size * 0.4,
-      //     Math.PI * 0.75, Math.PI * 1.25);
-      // this.context2d_.stroke();
-
       const map = new THREE.CanvasTexture(this.context2d_.canvas);
       map.anisotropy = 2;
 

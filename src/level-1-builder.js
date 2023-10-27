@@ -1,12 +1,9 @@
 import {THREE} from './threeD.js';
 
 import {entity} from './customEntity.js';
-
 import {math} from './math.js';
-
 import {render_component} from './render-component.js';
 import {basic_rigid_body} from './basic-rigid-body.js';
-import {mesh_rigid_body} from './mesh-rigid-body.js';
 
 export const level_1_builder = (() => {
 
@@ -417,6 +414,8 @@ export const level_1_builder = (() => {
         
       }
 
+
+
       this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
         scene: this.params_.scene,
         position: new THREE.Vector3(0, 2, 5)
@@ -430,16 +429,6 @@ export const level_1_builder = (() => {
       // this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
       //   scene: this.params_.scene,
       //   position: new THREE.Vector3(-100, 50, -5)
-      // });
-
-      // this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
-      //   scene: this.params_.scene,
-      //   position: new THREE.Vector3(-50, 50, -50)
-      // });
-
-      // this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
-      //   scene: this.params_.scene,
-      //   position: new THREE.Vector3(-50, 50, 50)
       // });
 
     }

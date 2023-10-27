@@ -3,6 +3,13 @@ import {THREE} from './threeD.js';
 import {entity} from './customEntity.js';
 
 
+/**
+ * @fileoverview This file contains the implementation of two classes: BasicRigidBody and CharacterRigidBody.
+ * BasicRigidBody is a component that creates a rigid body with a box shape and adds it to the physics world.
+ * CharacterRigidBody is a component that creates a rigid body with a box shape that matches the size of the character's mesh and adds it to the physics world.
+ * Both classes inherit from the entity.Component class and implement methods for initializing, updating, and handling collisions.
+ * @package
+ */
 export const basic_rigid_body = (() => {
 
   class BasicRigidBody extends entity.Component {

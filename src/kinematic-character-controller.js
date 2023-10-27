@@ -49,16 +49,6 @@ export const kinematic_character_controller = (() => {
       this.body_.body_.setWorldTransform(t);
     }
 
-    // Update(timeElapsedS) {
-    //   this.UpdateTranslation_(timeElapsedS);
-    // }
-
-    // UpdateTranslation_(timeElapsedS) {
-    //   const input = this.GetComponent('PlayerInput');
-
-    //   const forwardVelocity = (input.key(player_input.KEYS.w) ? 1 : 0) + (input.key(player_input.KEYS.s) ? -1 : 0)
-    //   const strafeVelocity = (input.key(player_input.KEYS.a) ? 1 : 0) + (input.key(player_input.KEYS.d) ? -1 : 0)
-    // }
   };
 
   return {

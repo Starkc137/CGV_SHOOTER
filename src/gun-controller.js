@@ -154,11 +154,8 @@ export const gun_controller = (() => {
             eulerZ.y = 0;
             const rotation = new THREE.Matrix4();
             rotation.lookAt(eye, position, this.Parent.Forward);
-            // rotation.multiply(new THREE.Matrix4().makeRotationFromEuler(eulerZ));
             const euler = new THREE.Euler();
             euler.setFromRotationMatrix(rotation);
-
-            // console.log('pos: ' + position.y);
 
             const decalMaterial = new THREE.MeshStandardMaterial( {
               color: 0xFFFFFF,

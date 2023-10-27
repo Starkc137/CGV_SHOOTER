@@ -3,6 +3,10 @@ import {THREE} from './threeD.js';
 import {entity} from './customEntity.js';
 
 
+/**
+ * @fileoverview This file contains the BasicRigidBody and CharacterRigidBody classes, which are components that add rigid body physics to entities in a three.js scene using the Ammo.js physics engine. The BasicRigidBody class creates a rigid body with a box shape, while the CharacterRigidBody class creates a rigid body that matches the bounding box of the entity's render component. Both classes update the position and rotation of the rigid body based on the position and rotation of the entity, and handle collisions with other rigid bodies in the scene.
+ * @package
+ */
 export const basic_rigid_body = (() => {
 
   class BasicRigidBody extends entity.Component {

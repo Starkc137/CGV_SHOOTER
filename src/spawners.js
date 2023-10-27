@@ -11,14 +11,31 @@ import {health_component} from './health-component.js';
 import {target_entity} from './target-controller.js';
 
 
+/**
+ * @namespace spawners
+ */
+
 export const spawners = (() => {
 
+  /**
+   * @classdesc Component for spawning the player entity
+   * @memberof spawners
+   * @extends entity.Component
+   */
   class PlayerSpawner extends entity.Component {
+    /**
+     * @constructor
+     * @param {Object} params - Parameters for the player spawner
+     */
     constructor(params) {
       super();
       this.params_ = params;
     }
 
+    /**
+     * Spawns the player entity
+     * @returns {entity.Entity} - The player entity
+     */
     Spawn() {
       const player = new entity.Entity();
       player.SetPosition(new THREE.Vector3(0, 2, 0));
@@ -35,12 +52,25 @@ export const spawners = (() => {
     }
   };
 
+  /**
+   * @classdesc Component for spawning the level 1 entity
+   * @memberof spawners
+   * @extends entity.Component
+   */
   class Level1Spawner extends entity.Component {
+    /**
+     * @constructor
+     * @param {Object} params - Parameters for the level 1 spawner
+     */
     constructor(params) {
       super();
       this.params_ = params;
     }
 
+    /**
+     * Spawns the level 1 entity
+     * @returns {entity.Entity} - The level 1 entity
+     */
     Spawn() {
       const e = new entity.Entity();
       e.SetPosition(new THREE.Vector3(0, 0, 0));
@@ -52,12 +82,27 @@ export const spawners = (() => {
     }
   };
 
+  /**
+   * @classdesc Component for spawning the target entity
+   * @memberof spawners
+   * @extends entity.Component
+   */
   class TargetSpawner extends entity.Component {
+    /**
+     * @constructor
+     * @param {Object} params - Parameters for the target spawner
+     */
     constructor(params) {
       super();
       this.params_ = params;
     }
 
+    /**
+     * Spawns the target entity
+     * @param {Object} params - Parameters for the target entity
+     * @param {THREE.Vector3} params.position - The position of the target entity
+     * @returns {entity.Entity} - The target entity
+     */
     Spawn(params) {
       const e = new entity.Entity();
       e.AddComponent(new target_entity.TargetCharacterController({

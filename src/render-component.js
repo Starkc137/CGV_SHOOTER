@@ -3,6 +3,11 @@ import {THREE} from './threeD.js';
 import {entity} from './customEntity.js';
 
 
+/**
+ * This module exports a RenderComponent class that extends entity.Component.
+ * It is responsible for rendering a 3D model in a scene using Three.js.
+ * @module render-component
+ */
 export const render_component = (() => {
 
   class RenderComponent extends entity.Component {
@@ -116,9 +121,6 @@ export const render_component = (() => {
 
         for (let m of materials) {
           if (m) {
-            // HACK
-            // m.depthWrite = true;
-            // m.transparent = false;
 
             if (this.params_.onMaterial) {
               this.params_.onMaterial(m);
