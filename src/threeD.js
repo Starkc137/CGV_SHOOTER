@@ -21,30 +21,6 @@ import {GTAOPass} from './third_party/gtaoPass/src/GTAOPass.js';
 import {CSM} from './third_party/csm/three-csm.js';
 
 
-/**
- * This module exports several Three.js classes and modules used in CGV_SHOOTER project.
- * @module threeD
- */
-/**
- * This module exports several objects from the Three.js library, as well as additional modules for post-processing effects and loaders.
- * @module threeD
- * @exports THREE
- * @exports EffectComposer
- * @exports ShaderPass
- * @exports GammaCorrectionShader
- * @exports RenderPass
- * @exports FXAAShader
- * @exports CopyShader
- * @exports UnrealBloomPass
- * @exports ACESFilmicToneMappingShader
- * @exports FBXLoader
- * @exports GLTFLoader
- * @exports SkeletonUtils
- * @exports DecalGeometry
- * @exports GTAOPass
- * @exports MotionBlurPass
- * @exports CSM
- */
 export {
   THREE, EffectComposer, ShaderPass, GammaCorrectionShader, RenderPass,
   FXAAShader, CopyShader, UnrealBloomPass, ACESFilmicToneMappingShader,

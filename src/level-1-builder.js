@@ -1,9 +1,12 @@
 import {THREE} from './threeD.js';
 
 import {entity} from './customEntity.js';
+
 import {math} from './math.js';
+
 import {render_component} from './render-component.js';
 import {basic_rigid_body} from './basic-rigid-body.js';
+import {mesh_rigid_body} from './mesh-rigid-body.js';
 
 export const level_1_builder = (() => {
 
@@ -26,20 +29,16 @@ export const level_1_builder = (() => {
 
       const countdownEl = document.getElementById('countdown');
 
-      setInterval(function () {updateCountdown(self.paused)}, 1000);
+      setInterval(updateCountdown, 1000);
 
-      function updateCountdown (_paused) {
+      function updateCountdown () {
         const minutes = Math.floor(time / 60);
         let seconds = time % 60;
 
-        if(!_paused){
-          seconds = seconds < 10 ? '0' + seconds : seconds;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
 
-          countdownEl.innerHTML = `${minutes}:${seconds}`;
-          time--;
-        }else{
-          countdownEl.innerHTML = `${minutes}:${seconds}`;
-        }
+        countdownEl.innerHTML = `${minutes}:${seconds}`;
+        time--;
         if (time < 0) {
           time = 0;
         
@@ -52,6 +51,7 @@ export const level_1_builder = (() => {
       this.materials_ = {};
     }
 
+    // Method to load materials for textures
     LoadMaterial_(albedoName, normalName, roughnessName, metalnessName,envMapName) {
       const textureLoader = new THREE.TextureLoader();
       const albedo = textureLoader.load('./resources/textures/' + albedoName);
@@ -418,8 +418,6 @@ export const level_1_builder = (() => {
         
       }
 
-
-
       this.FindEntity('spawners').GetComponent('TargetSpawner').Spawn({
         scene: this.params_.scene,
         position: new THREE.Vector3(0, 2, 5)
@@ -434,6 +432,7 @@ export const level_1_builder = (() => {
       //   scene: this.params_.scene,
       //   position: new THREE.Vector3(-100, 50, -5)
       // });
+
 
     }
 

@@ -1,27 +1,22 @@
 import {THREE} from './threeD.js';
-
 import {entity} from './customEntity.js';
 
-
-/**
- * @fileoverview This file contains the implementation of two classes: BasicRigidBody and CharacterRigidBody.
- * BasicRigidBody is a component that creates a rigid body with a box shape and adds it to the physics world.
- * CharacterRigidBody is a component that creates a rigid body with a box shape that matches the size of the character's mesh and adds it to the physics world.
- * Both classes inherit from the entity.Component class and implement methods for initializing, updating, and handling collisions.
- * @package
- */
+// Define and export the basic_rigid_body module
 export const basic_rigid_body = (() => {
 
+  // Define the BasicRigidBody class that extends the entity component
   class BasicRigidBody extends entity.Component {
     constructor(params) {
       super();
       this.params_ = params;
     }
 
+    // Remove the entity
     removeEntity() {
       this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
     }
 
+    // Initialize the entity
     InitializeEntity() {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
@@ -43,23 +38,28 @@ export const basic_rigid_body = (() => {
       this.BroadcastEvent({topic: 'physics.loaded'});
     }
 
+    // Initialize the component
     InitializeComponent() {
       this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
       this.addEventHandler_('update.rotation', (m) => { this.OnRotation_(m); });
       this.addEventHandler_('physics.collision', (m) => { this.OnCollision_(m); });
     }
 
+    // Handle collision events
     OnCollision_() {
     }
 
+    // Handle position changes
     OnPosition_(m) {
       this.OnTransformChanged_();
     }
 
+    // Handle rotation changes
     OnRotation_(m) {
       this.OnTransformChanged_();
     }
 
+    // Update the transform
     OnTransformChanged_() {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
@@ -79,10 +79,12 @@ export const basic_rigid_body = (() => {
       }
     }
 
+    // Update the component
     Update(_) {
     }
   };
 
+  // Define the CharacterRigidBody class that extends the entity component
   class CharacterRigidBody extends entity.Component {
     constructor(params) {
       super();
@@ -90,10 +92,12 @@ export const basic_rigid_body = (() => {
       this.box_ = new THREE.Box3();
     }
 
+    // Remove the entity
     removeEntity() {
       this.FindEntity('physics').GetComponent('CustomAmmoJSController').RemoveRigidBody(this.body_);
     }
 
+    // Initialize the entity
     InitializeEntity() {
       const pos = this.Parent.Position;
       const quat = this.Parent.Quaternion;
@@ -115,23 +119,28 @@ export const basic_rigid_body = (() => {
       this.BroadcastEvent({topic: 'physics.loaded'});
     }
 
+    // Initialize the component
     InitializeComponent() {
       this.addEventHandler_('update.position', (m) => { this.OnPosition_(m); });
       this.addEventHandler_('update.rotation', (m) => { this.OnRotation_(m); });
       this.addEventHandler_('physics.collision', (m) => { this.OnCollision_(m); });
     }
 
+    // Handle collision events
     OnCollision_() {
     }
 
+    // Handle position changes
     OnPosition_(m) {
       this.OnTransformChanged_();
     }
 
+    // Handle rotation changes
     OnRotation_(m) {
       this.OnTransformChanged_();
     }
 
+    // Update the transform
     OnTransformChanged_() {
       this.box_.setFromObject(this.Parent.Attributes.Render.group);
 
@@ -157,10 +166,12 @@ export const basic_rigid_body = (() => {
       }
     }
 
+    // Update the component
     Update(_) {
     }
   };
 
+  // Return the classes as exports
   return {
     BasicRigidBody: BasicRigidBody,
     CharacterRigidBody: CharacterRigidBody,

@@ -1,273 +1,239 @@
+// Importing necessary modules and components
 import {THREE, FBXLoader} from './threeD.js';
-
 import {entity} from './customEntity.js';
 import {finite_state_machine} from './finite-state-machine.js';
 import {player_state} from './player-state.js';
 
+// Creating the target_entity module
 export const target_entity = (() => {
+  
+  // Creating private variables for internal use
+  const _M = new THREE.Matrix4();
+  const _R = new THREE.Quaternion();
 
-const _M = new THREE.Matrix4();
-const _R = new THREE.Quaternion();
+  // Defining the TargetFSM class that extends the FiniteStateMachine class
+  class TargetFSM extends finite_state_machine.FiniteStateMachine {
+    constructor(proxy) {
+      super();
+      this._proxy = proxy;
+      this.Init_();
+    }
+  
+    // Initializing the finite state machine
+    Init_() {
+      this._AddState('idle', player_state.IdleState);
+      this._AddState('run', player_state.RunState);
+      this._AddState('death', player_state.DeathState);
+      this._AddState('shoot', player_state.AttackState);
+    }
+  };
+  
+  // Creating the TargetCharacterControllerProxy class
+  class TargetCharacterControllerProxy {
+    constructor(animations) {
+      this.animations_ = animations;
+    }
+  
+    get animations() {
+      return this.animations_;
+    }
+  };
 
-/**
- * The finite state machine for the target character controller.
- * @extends finite_state_machine.FiniteStateMachine
- */
-class TargetFSM extends finite_state_machine.FiniteStateMachine {
-  /**
-   * Creates an instance of TargetFSM.
-   * @param {TargetCharacterControllerProxy} proxy - The target character controller proxy.
-   */
-  constructor(proxy) {
-    super();
-    this._proxy = proxy;
-    this.Init_();
-  }
+  // Defining the TargetCharacterController class that extends the entity.Component class
+  class TargetCharacterController extends entity.Component {
+    constructor(params) {
+      super();
+      this.params_ = params;
+    }
 
-  /**
-   * Initializes the finite state machine.
-   * @private
-   */
-  Init_() {
-    this._AddState('idle', player_state.IdleState);
-    this._AddState('run', player_state.RunState);
-    this._AddState('death', player_state.DeathState);
-    this._AddState('shoot', player_state.AttackState);
-  }
-};
+    // Initializing the entity component
+    InitEntity() {
+      this.Init_();
+    }
 
-/**
- * The target character controller proxy.
- */
-class TargetCharacterControllerProxy {
-  /**
-   * Creates an instance of TargetCharacterControllerProxy.
-   * @param {Object} animations - The animations object.
-   */
-  constructor(animations) {
-    this.animations_ = animations;
-  }
+    // Initializing the target character controller
+    Init_() {
+      // Initializing various parameters and vectors
+      this.decceleration_ = new THREE.Vector3(-0.0005, -0.0001, -5.0);
+      this.acceleration_ = new THREE.Vector3(1, 0.125, 100.0);
+      this.velocity_ = new THREE.Vector3(0, 0, 0);
+      this.group_ = new THREE.Group();
 
-  /**
-   * Gets the animations object.
-   * @returns {Object} The animations object.
-   */
-  get animations() {
-    return this.animations_;
-  }
-};
+      // Adding the group to the scene
+      this.params_.scene.add(this.group_);
+      this.animations_ = {};
+  
+      // Setting up render attributes and NPC flag
+      this.Parent.Attributes.Render = {
+        group: this.group_,
+      };
+      this.Parent.Attributes.NPC = true;
+      
+      // Loading 3D models
+      this.LoadModels_();
+    }
 
-/**
- * The target character controller component.
- * @extends entity.Component
- */
-class TargetCharacterController extends entity.Component {
-  /**
-   * Creates an instance of TargetCharacterController.
-   * @param {Object} params - The parameters object.
-   */
-  constructor(params) {
-    super();
-    this.params_ = params;
-  }
+    // Initializing the entity component
+    InitComponent() {
+      this.RegisterHandler_('health.death', (m) => { this.OnDeath_(m); });
+      this.RegisterHandler_(
+          'update.position', (m) => { this.OnUpdatePosition_(m); });
+      this.RegisterHandler_(
+          'update.rotation', (m) => { this.OnUpdateRotation_(m); });
+    }
 
-  /**
-   * Initializes the entity.
-   */
-  InitEntity() {
-    this.Init_();
-  }
+    // Updating the position based on the message
+    OnUpdatePosition_(msg) {
+      this.group_.position.copy(msg.value);
+    }
 
-  /**
-   * Initializes the component.
-   */
-  Init_() {
-    this.decceleration_ = new THREE.Vector3(-0.0005, -0.0001, -5.0);
-    this.acceleration_ = new THREE.Vector3(1, 0.125, 100.0);
-    this.velocity_ = new THREE.Vector3(0, 0, 0);
-    this.group_ = new THREE.Group();
+    // Updating the rotation based on the message
+    OnUpdateRotation_(msg) {
+      this.group_.quaternion.copy(msg.value);
+    }
 
-    this.params_.scene.add(this.group_);
-    this.animations_ = {};
+    // Handling the death event
+    OnDeath_(msg) {
+      this.stateMachine_.SetState('death');
+    }
 
-    this.Parent.Attributes.Render = {
-      group: this.group_,
-    };
-    this.Parent.Attributes.NPC = true;
-    this.LoadModels_();
-  }
+    // Loading 3D models
+    LoadModels_() {
+      const loader = this.FindEntity('loader').GetComponent('LoadController');
+      loader.Load(this.params_.model.path, this.params_.model.name, (glb) => {
+        this.target_ = glb.scene;
 
-  InitComponent() {
-    this.RegisterHandler_('health.death', (m) => { this.OnDeath_(m); });
-    this.RegisterHandler_(
-        'update.position', (m) => { this.OnUpdatePosition_(m); });
-    this.RegisterHandler_(
-        'update.rotation', (m) => { this.OnUpdateRotation_(m); });
-  }
+        // Adding the target to the group and setting the scale
+        this.group_.add(this.target_);
+        this.target_.scale.setScalar(this.params_.model.scale);
 
-  /**
-   * Handles the update position message.
-   * @param {Object} msg - The message object.
-   * @private
-   */
-  OnUpdatePosition_(msg) {
-    this.group_.position.copy(msg.value);
-  }
+        // Setting up the position and rotation of the target
+        this.target_.position.set(0, -2.35, 0);
+        this.target_.rotateY(Math.PI);
+  
+        // Initializing bones and traverse through the target
+        this.bones_ = {};
+        this.target_.traverse(c => {
+          if (!c.skeleton) {
+            return;
+          }
+          for (let b of c.skeleton.bones) {
+            this.bones_[b.name] = b;
+          }
+        });
 
-  /**
-   * Handles the update rotation message.
-   * @param {Object} msg - The message object.
-   * @private
-   */
-  OnUpdateRotation_(msg) {
-    this.group_.quaternion.copy(msg.value);
-  }
+        // Setting up shadow and material properties for the target
+        this.target_.traverse(c => {
+          c.castShadow = true;
+          c.receiveShadow = true;
+          if (c.material && c.material.map) {
+            c.material.map.encoding = THREE.sRGBEncoding;
+          }
+        });
 
-  /**
-   * Handles the death message.
-   * @param {Object} msg - The message object.
-   * @private
-   */
-  OnDeath_(msg) {
-    this.stateMachine_.SetState('death');
-  }
+        // Initializing the animation mixer
+        this.mixer_ = new THREE.AnimationMixer(this.target_);
 
-  /**
-   * Loads the target model.
-   * @private
-   */
-  LoadModels_() {
-    const loader = this.FindEntity('loader').GetComponent('LoadController');
-    loader.Load(this.params_.model.path, this.params_.model.name, (glb) => {
-      this.target_ = glb.scene;
-
-      this.group_.add(this.target_);
-      this.target_.scale.setScalar(this.params_.model.scale);
-      this.target_.position.set(0, -2.35, 0);
-      this.target_.rotateY(Math.PI);
-
-      this.bones_ = {};
-      this.target_.traverse(c => {
-        if (!c.skeleton) {
-          return;
-        }
-        for (let b of c.skeleton.bones) {
-          this.bones_[b.name] = b;
-        }
-      });
-
-      this.target_.traverse(c => {
-        c.castShadow = true;
-        c.receiveShadow = true;
-        if (c.material && c.material.map) {
-          c.material.map.encoding = THREE.sRGBEncoding;
-        }
-      });
-
-      this.mixer_ = new THREE.AnimationMixer(this.target_);
-
-      const _FindAnim = (animName) => {
-        for (let i = 0; i < glb.animations.length; i++) {
-          if (glb.animations[i].name.includes(animName)) {
-            const clip = glb.animations[i];
-            const action = this.mixer_.clipAction(clip);
-            return {
-              clip: clip,
-              action: action
+        // Finding the animations for different states
+        const _FindAnim = (animName) => {
+          for (let i = 0; i < glb.animations.length; i++) {
+            if (glb.animations[i].name.includes(animName)) {
+              const clip = glb.animations[i];
+              const action = this.mixer_.clipAction(clip);
+              return {
+                clip: clip,
+                action: action
+              }
             }
           }
+          return null;
+        };
+
+        // Storing the animations for different states
+        this.animations_['idle'] = _FindAnim('Idle');
+        this.animations_['walk'] = _FindAnim('Walk');
+        this.animations_['run'] = _FindAnim('Run');
+        this.animations_['death'] = _FindAnim('Death');
+        this.animations_['attack'] = _FindAnim('Shoot');
+        this.animations_['shoot'] = _FindAnim('Shoot');
+
+        // Setting the target visibility to true
+        this.target_.visible = true;
+
+        // Initializing the state machine and setting the state
+        this.stateMachine_ = new TargetFSM(
+            new TargetCharacterControllerProxy(this.animations_));
+
+        if (this.queuedState_) {
+          this.stateMachine_.SetState(this.queuedState_)
+          this.queuedState_ = null;
+        } else {
+          this.stateMachine_.SetState('idle');
         }
-        return null;
-      };
 
-      this.animations_['idle'] = _FindAnim('Idle');
-      this.animations_['walk'] = _FindAnim('Walk');
-      this.animations_['run'] = _FindAnim('Run');
-      this.animations_['death'] = _FindAnim('Death');
-      this.animations_['attack'] = _FindAnim('Shoot');
-      this.animations_['shoot'] = _FindAnim('Shoot');
+        // Broadcasting the load character event
+        this.Broadcast({
+            topic: 'load.character',
+            model: this.group_,
+            bones: this.bones_,
+        });
+      });
+    }
 
-      this.target_.visible = true;
+    // Finding the player's position
+    FindPlayer_() {
+      const player = this.FindEntity('player');
 
-      this.stateMachine_ = new TargetFSM(
-          new TargetCharacterControllerProxy(this.animations_));
+      const dir = player.Position.clone();
+      dir.sub(this.Parent.Position);
+      dir.y = 0;
 
-      if (this.queuedState_) {
-        this.stateMachine_.SetState(this.queuedState_)
-        this.queuedState_ = null;
-      } else {
+      return dir;
+    }
+
+    // Updating the AI based on the elapsed time
+    _UpdateAI(timeElapsedS) {
+      const toPlayer = this.FindPlayer_();
+      const dirToPlayer = toPlayer.clone().normalize();
+
+      if (toPlayer.length() == 0 || toPlayer.length() > 50) {
         this.stateMachine_.SetState('idle');
+        this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
+        return;
       }
 
-      this.Broadcast({
-          topic: 'load.character',
-          model: this.group_,
-          bones: this.bones_,
-      });
-    });
-  }
+      _M.lookAt(
+          new THREE.Vector3(0, 0, 0),
+          dirToPlayer,
+          new THREE.Vector3(0, 1, 0));
+      _R.setFromRotationMatrix(_M);
 
-  /**
-   * Finds the player entity.
-   * @returns {THREE.Vector3} The player entity.
-   * @private
-   */
-  FindPlayer_() {
-    const player = this.FindEntity('player');
+      this.Parent.SetQuaternion(_R);
 
-    const dir = player.Position.clone();
-    dir.sub(this.Parent.Position);
-    dir.y = 0;
+      if (toPlayer.length() < 20) {
+        this.stateMachine_.SetState('shoot');
+        this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
+        return;
+      }
 
-    return dir;
-  }
+      const forwardVelocity = 5;
+      const strafeVelocity = 0;
 
-  /**
-   * Updates the AI.
-   * @param {number} timeElapsedS - The elapsed time in seconds.
-   * @private
-   */
-  _UpdateAI(timeElapsedS) {
-    const toPlayer = this.FindPlayer_();
-    const dirToPlayer = toPlayer.clone().normalize();
-
-    if (toPlayer.length() == 0 || toPlayer.length() > 50) {
-      this.stateMachine_.SetState('idle');
-      this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
-      return;
-    }
-
-    _M.lookAt(
-        new THREE.Vector3(0, 0, 0),
-        dirToPlayer,
-        new THREE.Vector3(0, 1, 0));
-    _R.setFromRotationMatrix(_M);
-
-    this.Parent.SetQuaternion(_R);
-
-    if (toPlayer.length() < 20) {
-      this.stateMachine_.SetState('shoot');
-      this.Parent.Attributes.Physics.CharacterController.setWalkDirection(new THREE.Vector3(0, 0, 0));
-      return;
-    }
-
-    const forwardVelocity = 5;
-    const strafeVelocity = 0;
-
-    const forward = new THREE.Vector3(0, 0, -1);
-    forward.applyQuaternion(_R);
-    forward.multiplyScalar(forwardVelocity * timeElapsedS * 2);
-
-    const left = new THREE.Vector3(-1, 0, 0);
-    left.applyQuaternion(_R);
-    left.multiplyScalar(strafeVelocity * timeElapsedS * 2);
-
-    const walk = forward.clone().add(left);
+      const forward = new THREE.Vector3(0, 0, -1);
+      forward.applyQuaternion(_R);
+      forward.multiplyScalar(forwardVelocity * timeElapsedS * 2);
   
+      const left = new THREE.Vector3(-1, 0, 0);
+      left.applyQuaternion(_R);
+      left.multiplyScalar(strafeVelocity * timeElapsedS * 2);
+
+      const walk = forward.clone().add(left);
+
       this.Parent.Attributes.Physics.CharacterController.setWalkDirection(walk);
       this.stateMachine_.SetState('run');
     }
 
+    // Updating the target based on time
     Update(timeInSeconds) {
       if (!this.stateMachine_) {
         return;
@@ -275,8 +241,6 @@ class TargetCharacterController extends entity.Component {
 
       const input = this.GetComponent('BasicCharacterControllerInput');
       this.stateMachine_.Update(timeInSeconds, input);
-
-
 
       if (this.stateMachine_._currentState._action) {
         this.Broadcast({
@@ -289,7 +253,6 @@ class TargetCharacterController extends entity.Component {
       if (this.mixer_) {
         this.mixer_.update(timeInSeconds);
       }
-
 
       switch (this.stateMachine_.State) {
         case 'idle': {
@@ -314,10 +277,10 @@ class TargetCharacterController extends entity.Component {
       const pos3 = new THREE.Vector3(pos.x(), pos.y(), pos.z());
 
       this.Parent.SetPosition(pos3);
-
     }
   };
   
+  // Exporting the necessary classes and components
   return {
       TargetFSM: TargetFSM,
       TargetCharacterController: TargetCharacterController,

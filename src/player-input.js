@@ -1,20 +1,11 @@
+// Import necessary components and modules
 import {entity} from "./customEntity.js";
 import {passes} from './passes.js';
 
-
-/**
- * This module exports a PlayerInput class and a KEYS object.
- * The PlayerInput class handles user input from the keyboard and mouse.
- * The KEYS object maps key names to their corresponding key codes.
- * @module player_input
- */
-
+// Define and export the player_input module
 export const player_input = (() => {
 
-  /**
-   * Maps key names to their corresponding key codes.
-   * @constant {Object.<string, number>}
-   */
+  // Define the key mappings for various keys
   const KEYS = {
     'a': 65,
     's': 83,
@@ -26,25 +17,16 @@ export const player_input = (() => {
     'Escape':27,
   };
 
-  /**
-   * Handles user input from the keyboard and mouse.
-   * @memberof module:player_input
-   */
+  // Define the PlayerInput class
   class PlayerInput extends entity.Component {
-    /**
-     * Creates a PlayerInput instance.
-     * @param {Object} params - The parameters for the component.
-     */
     constructor(params) {
       super();
       this.params_ = params;
     }
 
-    /**
-     * Initializes the component.
-     * @override
-     */
+    // Initialize the entity
     InitEntity() {
+      // Initialize various input states and event listeners
       this.current_ = {
         leftButton: false,
         rightButton: false,
@@ -63,6 +45,7 @@ export const player_input = (() => {
       this.target_.addEventListener('keydown', (e) => this.onKeyDown_(e), false);
       this.target_.addEventListener('keyup', (e) => this.onKeyUp_(e), false);
 
+      // Set initial input attributes
       this.Parent.Attributes.Input = {
         Keyboard: {
           Current: this.keys_,
@@ -74,15 +57,12 @@ export const player_input = (() => {
         },
       };
 
-      this.SetPass(passes.INPUT);
+      this.SetPass(passes.INPUT); // Set the pass for input handling
     }
 
-    /**
-     * Handles mouse movement events.
-     * @param {MouseEvent} e - The mouse event.
-     * @private
-     */
+    // Event handler for mouse movement
     onMouseMove_(e) {
+      // Update mouse coordinates and deltas
       this.current_.mouseX = e.pageX - window.innerWidth / 2;
       this.current_.mouseY = e.pageY - window.innerHeight / 2;
 
@@ -94,110 +74,80 @@ export const player_input = (() => {
       this.current_.mouseYDelta = this.current_.mouseY - this.previous_.mouseY;
     }
 
-    /**
-     * Handles mouse button down events.
-     * @param {MouseEvent} e - The mouse event.
-     * @private
-     */
+    // Event handler for mouse button press
     onMouseDown_(e) {
-      this.onMouseMove_(e);
+      this.onMouseMove_(e); // Update mouse coordinates
 
       switch (e.button) {
         case 0: {
-          this.current_.leftButton = true;
+          this.current_.leftButton = true; // Set leftButton to true for left mouse button press
           break;
         }
         case 2: {
-          this.current_.rightButton = true;
+          this.current_.rightButton = true; // Set rightButton to true for right mouse button press
           break;
         }
       }
     }
 
-    /**
-     * Handles mouse button up events.
-     * @param {MouseEvent} e - The mouse event.
-     * @private
-     */
+    // Event handler for mouse button release
     onMouseUp_(e) {
-      this.onMouseMove_(e);
+      this.onMouseMove_(e); // Update mouse coordinates
 
       switch (e.button) {
         case 0: {
-          this.current_.leftButton = false;
+          this.current_.leftButton = false; // Set leftButton to false for left mouse button release
           break;
         }
         case 2: {
-          this.current_.rightButton = false;
+          this.current_.rightButton = false; // Set rightButton to false for right mouse button release
           break;
         }
       }
     }
 
-    /**
-     * Handles key down events.
-     * @param {KeyboardEvent} e - The keyboard event.
-     * @private
-     */
+    // Event handler for key press
     onKeyDown_(e) {
       if(e.key ==='Escape' && this.paused){
-        this.togglePause();
-        document.getElementById('menu').style.display = 'none';
+        this.togglePause(); // Toggle the pause state
+        document.getElementById('menu').style.display = 'none'; // Hide the menu
       }
       else if(e.key === 'Escape' && !this.paused){
-        document.getElementById('menu').style.display = 'initial';
-        this.togglePause();
+        document.getElementById('menu').style.display = 'initial'; // Show the menu
+        this.togglePause(); // Toggle the pause state
         // Register remove onClick
-       play_button.innerHTML = "ESC to play";
-       play_button.style.fontSize = "15px";
-       play_button.disabled = true;
+       play_button.innerHTML = "ESC to play"; // Update play_button text
+       play_button.style.fontSize = "15px"; // Update play_button style
+       play_button.disabled = true; // Disable the play_button
       }
       else if(!this.paused)
-      this.keys_[e.keyCode] = true;
+      this.keys_[e.keyCode] = true; // Set the corresponding key to true for key press
     }
 
-    /**
-     * Handles key up events.
-     * @param {KeyboardEvent} e - The keyboard event.
-     * @private
-     */
+    // Event handler for key release
     onKeyUp_(e) {
-      this.keys_[e.keyCode] = false;
+      this.keys_[e.keyCode] = false; // Set the corresponding key to false for key release
     }
 
-    /**
-     * Returns whether a key is currently pressed.
-     * @param {number} keyCode - The key code.
-     * @returns {boolean} Whether the key is currently pressed.
-     */
+    // Helper method to check the state of a key
     key(keyCode) {
-      return !!this.keys_[keyCode];
+      return !!this.keys_[keyCode]; // Return the state of the provided key
     }
 
-    /**
-     * Returns whether the left mouse button was released.
-     * @param {boolean} [checkPrevious=true] - Whether to check the previous state of the button.
-     * @returns {boolean} Whether the left mouse button was released.
-     */
+    // Helper method to check if the left mouse button was released
     mouseLeftReleased(checkPrevious=true) {
-      return (!this.current_.leftButton && this.previous_.leftButton);
+      return (!this.current_.leftButton && this.previous_.leftButton); // Check and return the state of the left mouse button
     }
 
-    /**
-     * Returns whether the component is ready.
-     * @returns {boolean} Whether the component is ready.
-     */
+    // Helper method to check if the input is ready
     isReady() {
-      return this.previous_ !== null;
+      return this.previous_ !== null; // Check and return if the input is ready
     }
 
-    /**
-     * Updates the component.
-     * @param {number} _ - The delta time.
-     * @override
-     */
+    // Update method to handle input updates
     Update(_) {
       if(this.paused !==null && this.paused){
+        // Reset input states if the game is paused
         this.mouseX = 0;
         this.mouseY = 0;
         this.previous_ = null;
@@ -206,6 +156,7 @@ export const player_input = (() => {
         this.target_ = document;
       }
       else if (this.previous_ !== null) {
+        // Update mouse deltas and previous states
         this.current_.mouseXDelta = this.current_.mouseX - this.previous_.mouseX;
         this.current_.mouseYDelta = this.current_.mouseY - this.previous_.mouseY;
 
@@ -215,6 +166,7 @@ export const player_input = (() => {
     }
   };
 
+  // Expose the PlayerInput class and KEYS mappings
   return {
     PlayerInput: PlayerInput,
     KEYS: KEYS,

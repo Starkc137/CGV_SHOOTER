@@ -11,48 +11,28 @@ import {blaster} from './fx/blaster.js';
 import {ui_controller} from './ui-controller.js';
 
 
-/**
- * Represents the main class for the ShooterCGV game.
- * @class
- */
 class ShooterCGV {
-  /**
-   * Creates an instance of ShooterCGV.
-   * @constructor
-   */
   constructor() {
     this._Initialize();
   }
 
-  /**
-   * Initializes the game.
-   * @private
-   */
   _Initialize() {
     this.entityManager_ = new entity_manager.EntityManager();
 
     this.OnGameStarted_();
   }
 
-  /**
-   * Called when the game starts.
-   * @private
-   */
   OnGameStarted_() {
     this.grid_ = new spatial_hash_grid.SpatialHashGrid(
         [[-5000, -5000], [5000, 5000]], [100, 100]);
 
-    this.Loader_();
+    this.LoadControllers_();
 
     this.previousRAF_ = null;
     this.RAF_();
   }
 
-  /**
-   * Loads game assets.
-   * @private
-   */
-  Loader_() {
+  LoadControllers_() {
     const threejs = new entity.Entity();
     threejs.AddComponent(new threejs_component.ThreeJSController());
     this.entityManager_.Add(threejs, 'threejs');
@@ -101,10 +81,6 @@ class ShooterCGV {
     spawner.GetComponent('Level1Spawner').Spawn();
   }
 
-  /**
-   * Requests animation frame.
-   * @private
-   */
   RAF_() {
     requestAnimationFrame((t) => {
       if (this.previousRAF_ === null) {
@@ -120,11 +96,6 @@ class ShooterCGV {
     });
   }
 
-  /**
-   * Steps the simulation.
-   * @param {number} timeElapsed - The time elapsed since the last frame.
-   * @private
-   */
   Step_(timeElapsed) {
     const timeElapsedS = Math.min(1.0 / 30.0, timeElapsed * 0.001);
 

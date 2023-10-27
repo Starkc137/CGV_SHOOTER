@@ -1,18 +1,10 @@
-
 import {math} from './math.js';
 
-
-/**
- * A class representing a spatial hash grid.
- */
+// Define and export the spatial_hash_grid module
 export const spatial_hash_grid = (() => {
 
+  // Define the SpatialHashGrid class
   class SpatialHashGrid {
-    /**
-     * Creates a new instance of the SpatialHashGrid class.
-     * @param {Array} bounds - The bounds of the grid.
-     * @param {Array} dimensions - The dimensions of the grid.
-     */
     constructor(bounds, dimensions) {
       const [x, y] = dimensions;
       this._cells = [...Array(x)].map(_ => [...Array(y)].map(_ => (null)));
@@ -21,31 +13,21 @@ export const spatial_hash_grid = (() => {
       this._queryIds = 0;
       this.ids_ = 0;
     }
-  
-    /**
-     * Gets the index of the cell containing the given position.
-     * @param {Array} position - The position to get the cell index for.
-     * @returns {Array} The index of the cell containing the given position.
-     * @private
-     */
+
+    // Get the index of the cell
     _GetCellIndex(position) {
       const x = math.sat((position[0] - this._bounds[0][0]) / (
           this._bounds[1][0] - this._bounds[0][0]));
       const y = math.sat((position[1] - this._bounds[0][1]) / (
           this._bounds[1][1] - this._bounds[0][1]));
-  
+
       const xIndex = Math.floor(x * (this._dimensions[0] - 1));
       const yIndex = Math.floor(y * (this._dimensions[1] - 1));
-  
+
       return [xIndex, yIndex];
     }
-  
-    /**
-     * Creates a new client with the given position and dimensions.
-     * @param {Array} position - The position of the new client.
-     * @param {Array} dimensions - The dimensions of the new client.
-     * @returns {Object} The new client.
-     */
+
+    // Create a new client
     NewClient(position, dimensions) {
       const client = {
         position: position,
@@ -58,58 +40,50 @@ export const spatial_hash_grid = (() => {
         _queryId: -1,
         id_: this.ids_++,
       };
-  
+
       this._Insert(client);
-  
+
       return client;
     }
-  
-    /**
-     * Updates the given client's position and dimensions.
-     * @param {Object} client - The client to update.
-     */
+
+    // Update the client
     UpdateClient(client) {
       const [x, y] = client.position;
       const [w, h] = client.dimensions;
-  
+
       const i1 = this._GetCellIndex([x - w / 2, y - h / 2]);
       const i2 = this._GetCellIndex([x + w / 2, y + h / 2]);
-  
+
       if (client._cells.min[0] == i1[0] &&
           client._cells.min[1] == i1[1] &&
           client._cells.max[0] == i2[0] &&
           client._cells.max[1] == i2[1]) {
         return;
       }
-  
+
       this.Remove(client);
       this._Insert(client);
     }
-  
-    /**
-     * Finds all clients within the given bounds of the given position.
-     * @param {Array} position - The position to search around.
-     * @param {Array} bounds - The bounds to search within.
-     * @returns {Array} An array of clients within the given bounds of the given position.
-     */
+
+    // Find nearby clients
     FindNear(position, bounds) {
       const [x, y] = position;
       const [w, h] = bounds;
-  
+
       const i1 = this._GetCellIndex([x - w / 2, y - h / 2]);
       const i2 = this._GetCellIndex([x + w / 2, y + h / 2]);
-  
+
       const clients = [];
       const queryId = this._queryIds++;
-  
+
       for (let x = i1[0], xn = i2[0]; x <= xn; ++x) {
         for (let y = i1[1], yn = i2[1]; y <= yn; ++y) {
           let head = this._cells[x][y];
-  
+
           while (head) {
             const v = head.client;
             head = head.next;
-  
+
             if (v._queryId != queryId) {
               v._queryId = queryId;
               clients.push(v);
@@ -120,83 +94,76 @@ export const spatial_hash_grid = (() => {
 
       return clients;
     }
-  
-    /**
-     * Inserts the given client into the grid.
-     * @param {Object} client - The client to insert.
-     * @private
-     */
+
+    // Insert the client
     _Insert(client) {
       const [x, y] = client.position;
       const [w, h] = client.dimensions;
-  
+
       const i1 = this._GetCellIndex([x - w / 2, y - h / 2]);
       const i2 = this._GetCellIndex([x + w / 2, y + h / 2]);
-  
+
       const nodes = [];
-  
+
       for (let x = i1[0], xn = i2[0]; x <= xn; ++x) {
         nodes.push([]);
-  
+
         for (let y = i1[1], yn = i2[1]; y <= yn; ++y) {
           const xi = x - i1[0];
-  
+
           const head = {
             next: null,
             prev: null,
             client: client,
           };
-  
+
           nodes[xi].push(head);
-  
+
           head.next = this._cells[x][y];
           if (this._cells[x][y]) {
             this._cells[x][y].prev = head;
           }
-  
+
           this._cells[x][y] = head;
         }
       }
-  
+
       client._cells.min = i1;
       client._cells.max = i2;
       client._cells.nodes = nodes;
     }
-  
-    /**
-     * Removes the given client from the grid.
-     * @param {Object} client - The client to remove.
-     * @private
-     */
+
+    // Remove the client
     Remove(client) {
       const i1 = client._cells.min;
       const i2 = client._cells.max;
-  
+
       for (let x = i1[0], xn = i2[0]; x <= xn; ++x) {
         for (let y = i1[1], yn = i2[1]; y <= yn; ++y) {
           const xi = x - i1[0];
           const yi = y - i1[1];
           const node = client._cells.nodes[xi][yi];
-  
+
           if (node.next) {
             node.next.prev = node.prev;
           }
           if (node.prev) {
             node.prev.next = node.next;
           }
-  
+
           if (!node.prev) {
             this._cells[x][y] = node.next;
           }
         }
       }
-  
+
       client._cells.min = null;
       client._cells.max = null;
       client._cells.nodes = null;
     }
   }
 
+  // Export the SpatialHashGrid class
   return {
     SpatialHashGrid: SpatialHashGrid,
   };

@@ -1,15 +1,11 @@
+// Import necessary components and modules
 import {THREE} from './threeD.js';
-
 import {entity} from './customEntity.js';
 
-
-/**
- * This module exports a RenderComponent class that extends entity.Component.
- * It is responsible for rendering a 3D model in a scene using Three.js.
- * @module render-component
- */
+// Define and export the render_component module
 export const render_component = (() => {
 
+  // Define the RenderComponent class
   class RenderComponent extends entity.Component {
     constructor(params) {
       super();
@@ -20,6 +16,7 @@ export const render_component = (() => {
       this.params_.scene.add(this.group_);
     }
 
+    // Method to clean up resources on component destruction
     Destroy() {
       this.group_.traverse(c => {
         if (c.material) {
@@ -32,6 +29,7 @@ export const render_component = (() => {
       this.params_.scene.remove(this.group_);
     }
 
+    // Method to initialize the entity
     InitEntity() {
       this.Parent.Attributes.Render = {
         group: this.group_,
@@ -40,25 +38,31 @@ export const render_component = (() => {
       this.LoadModels_();
     }
   
+    // Method to initialize the component
     InitComponent() {
+      // Register event handlers
       this.RegisterHandler_('update.position', (m) => { this.OnPosition_(m); });
       this.RegisterHandler_('update.rotation', (m) => { this.OnRotation_(m); });
       this.RegisterHandler_('render.visible', (m) => { this.OnVisible_(m); });
       this.RegisterHandler_('render.offset', (m) => { this.OnOffset_(m.offset); });
     }
 
+    // Method to handle visibility changes
     OnVisible_(m) {
       this.group_.visible = m.value;
     }
 
+    // Method to handle position updates
     OnPosition_(m) {
       this.group_.position.copy(m.value);
     }
 
+    // Method to handle rotation updates
     OnRotation_(m) {
       this.group_.quaternion.copy(m.value);
     }
 
+    // Method to handle offset changes
     OnOffset_(offset) {
       this.offset_ = offset;
       if (!this.offset_) {
@@ -71,6 +75,7 @@ export const render_component = (() => {
       }
     }
 
+    // Method to load 3D models
     LoadModels_() {
       const loader = this.FindEntity('loader').GetComponent('LoadController');
       loader.Load(
@@ -79,6 +84,7 @@ export const render_component = (() => {
       });
     }
 
+    // Method to handle loaded models
     OnLoaded_(obj) {
       this.target_ = obj;
       this.group_.add(this.target_);
@@ -109,6 +115,7 @@ export const render_component = (() => {
         }
       }
 
+      // Traverse through the target and apply necessary modifications
       this.target_.traverse(c => {
         let materials = c.material;
         if (!(c.material instanceof Array)) {
@@ -121,7 +128,6 @@ export const render_component = (() => {
 
         for (let m of materials) {
           if (m) {
-
             if (this.params_.onMaterial) {
               this.params_.onMaterial(m);
             }
@@ -155,17 +161,19 @@ export const render_component = (() => {
         c.receiveShadow = true;
       });
 
+      // Broadcast that the rendering is complete
       this.Broadcast({
           topic: 'render.loaded',
           value: this.target_,
       });
     }
 
+    // Method to update the component
     Update(timeInSeconds) {
     }
   };
 
-
+  // Return the RenderComponent class
   return {
       RenderComponent: RenderComponent,
   };

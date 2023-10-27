@@ -1,12 +1,17 @@
+// Import necessary components and libraries from other files
 import {THREE} from "./threeD.js";
 
-
+// Define and export a decal_material module within an IIFE (Immediately Invoked Function Expression) to encapsulate the code
 export const decal_material = (() => {
 
+  // Define a function to modify the material based on a specific position
   function Modify(material, position) {
+    // Implement modifications to the material onBeforeCompile
     material.onBeforeCompile = (shader) => {
+      // Define the position value as a uniform
       shader.uniforms.poopSpot = { value: position, };
 
+      // Modify the vertex shader to include additional variables
       shader.vertexShader = shader.vertexShader.replace('#include <common>',
       `
       #include <common>
@@ -19,17 +24,21 @@ export const decal_material = (() => {
       vWorldPosition = worldPosition;
       vWorldNormal = inverseTransformDirection( transformedNormal, viewMatrix );
       `);
+
+      // Include necessary declarations in the fragment shader
       const FS_DECLARATIONS = `
       uniform vec3 poopSpot;
       `;
       shader.fragmentShader = shader.fragmentShader.replace('void main()', FS_DECLARATIONS + 'void main()');
+
+      // Implement noise and other procedural patterns in the fragment shader
       shader.fragmentShader = shader.fragmentShader.replace('#include <common>',
-    `
+      `
       #include <common>
       varying vec4 vWorldPosition;
       varying vec3 vWorldNormal;
 
-
+      
       vec3 hash( vec3 p ) // replace this by something better. really. do
       {
         p = vec3( dot(p,vec3(127.1,311.7, 74.7)),
@@ -126,10 +135,13 @@ export const decal_material = (() => {
       }
 
       `);
+
+      // Implement modifications to the fragment shader for the decal effect
       shader.fragmentShader = shader.fragmentShader.replace('#include <emissivemap_fragment>',
         `
         #include <emissivemap_fragment>
 
+        // Calculate signed distance field for the decal
         float sdf = sdCircle(vWorldPosition.xyz - poopSpot, 0.15);
         for (float i = 0.0; i < 15.0; i += 1.0) {
           vec4 noiseSample = noised(poopSpot + vec3(i * 10.0));
@@ -140,14 +152,18 @@ export const decal_material = (() => {
         }
         float dist = smoothstep(0.1, 0.0, sdf);
 
+        // Modify the diffuseColor based on the calculated distance and other factors
         vec4 foop = noised(poopSpot.xyz * 100.0);
         diffuseColor.w = clamp(dist, 0.0, 1.0);
         diffuseColor.xyz = vec3(0.0, 0.0, 1.0);
       `);
+
+      // Store the modified shader in the material's user data
       material.userData.shader = shader;
     };
   }
 
+  // Return the function for modifying materials
   return {
     ModifyMaterial: Modify,
   };

@@ -10,37 +10,6 @@ import {LuminosityHighPassShader} from './luminosityshader.js';
 import {entity} from "./customEntity.js";
 
 
-/**
- * @fileoverview This file contains the implementation of a ThreeJS controller component.
- * It exports a class that extends entity.Component and provides methods to initialize the ThreeJS renderer,
- * camera, scene, lights, and post-processing effects.
- * It also defines two shader chunks for the sky vertex and fragment shaders.
- * @requires THREE, CSM, EffectComposer, ShaderPass, FXAAShader, RenderPass, MotionBlurPass
- */
-/**
- * @fileoverview This file contains the ThreeJSController class and the vertex and fragment shaders for the sky and stars.
- * @typedef {Object} ThreeJSController
- * @property {function} constructor - The constructor function for the ThreeJSController class.
- * @property {function} InitEntity - Initializes the ThreeJSController entity.
- * @property {THREE.WebGLRenderer} threejs_ - The WebGLRenderer instance used for rendering.
- * @property {THREE.PerspectiveCamera} camera_ - The PerspectiveCamera instance used for the scene.
- * @property {THREE.Scene} scene_ - The Scene instance used for the scene.
- * @property {THREE.PerspectiveCamera} decalCamera_ - The PerspectiveCamera instance used for the decals.
- * @property {THREE.Scene} sceneDecals_ - The Scene instance used for the decals.
- * @property {THREE.AudioListener} listener_ - The AudioListener instance used for the camera.
- * @property {THREE.OrthographicCamera} uiCamera_ - The OrthographicCamera instance used for the UI.
- * @property {THREE.Scene} uiScene_ - The Scene instance used for the UI.
- * @property {THREE.DirectionalLight} sun_ - The DirectionalLight instance used for the sun.
- * @property {CSM} csm_ - The CSM instance used for the cascaded shadow maps.
- * @property {THREE.WebGLRenderTarget} writeBuffer_ - The WebGLRenderTarget instance used for the write buffer.
- * @property {THREE.WebGLRenderTarget} readBuffer_ - The WebGLRenderTarget instance used for the read buffer.
- * @property {EffectComposer} composer_ - The EffectComposer instance used for the post-processing effects.
- * @property {ShaderPass} fxaaPass_ - The ShaderPass instance used for the FXAA post-processing effect.
- * @property {RenderPass} uiPass_ - The RenderPass instance used for the UI.
- * @property {MotionBlurPass} motionBlurPass_ - The MotionBlurPass instance used for the motion blur post-processing effect.
- * @const {string} _SKY_VS - The vertex shader for the sky.
- * @const {string} _SKY_FS - The fragment shader for the sky and stars.
- */
 export const threejs_component = (() => {
 
   const _SKY_VS = `
@@ -79,8 +48,6 @@ export const threejs_component = (() => {
         0.0, 1.0, 0.0,
         -s2, 0.0, c2);
     vec3 stars = sRGBToLinear(textureCube(stars, r1 * r2 * viewDirection)).xyz;
-  
-  
     sky = pow(sky, vec3(1.5, 1.5, 1.2));
 
     vec3 luma = vec3( 0.299, 0.587, 0.114 );
@@ -93,12 +60,17 @@ export const threejs_component = (() => {
   }`;
 
 
+  // Class for the ThreeJS controller component
   class ThreeJSController extends entity.Component {
     constructor() {
       super();
     }
 
+    // Initialize the ThreeJS controller component
     InitEntity() {
+            // Append the threejs canvas to the container
+      // Initialize camera, scenes, lights, and other necessary components
+      // Set up the necessary passes for rendering and post-processing effects
       THREE.ShaderChunk.emissivemap_fragment += '\ndiffuseColor.a = 0.0;';
         
       this.threejs_ = new THREE.WebGLRenderer({
@@ -147,6 +119,7 @@ export const threejs_component = (() => {
       light.position.set(-20, 100, 20);
       light.target.position.set(0, 0, 0);
       light.intensity = 2.4;
+
       const lightDir = light.position.clone();
       lightDir.normalize();
       lightDir.multiplyScalar(-1);
@@ -237,11 +210,17 @@ export const threejs_component = (() => {
       this.composer_.addPass(this.gammaPass_);
       this.composer_.addPass(this.fxaaPass_);
 
+      // Load the background for the scene using the defined custom background shader
       this.LoadBackground_();
+      // Set up event listeners for window resize
       this.onWindowResize_();
     }
 
+     // Load the background for the scene using a cube texture and a custom shader
     LoadBackground_() {
+      // Load cube texture for the sky
+      // Set up uniforms for the sky shader
+      // Create a sphere geometry and apply the custom sky shader to it
       const loader = new THREE.CubeTextureLoader();
       const texture = loader.load([
           './resources/sky/Cold_Sunset__Cam_2_Left+X.png',
@@ -275,7 +254,10 @@ export const threejs_component = (() => {
       return this.threejs_.capabilities.getMaxAnisotropy();
     }
 
+    // Handle window resize events and update the camera accordingly
     onWindowResize_() {
+      // Adjust the camera aspect ratio and update the projection matrix
+      // Adjust the ThreeJS renderer and composer sizes accordingly
       this.camera_.aspect = window.innerWidth / window.innerHeight;
       this.camera_.updateProjectionMatrix();
   
@@ -291,13 +273,18 @@ export const threejs_component = (() => {
           window.innerHeight * pixelRatio);
     }
 
+    // Swap the buffers during rendering
     swapBuffers_() {
+      // Swap the read buffer with the write buffer
       const tmp = this.writeBuffer_;
       this.writeBuffer_ = this.readBuffer_;
       this.readBuffer_ = tmp;
     }
 
+    // Render the scene with various post-processing effects
     Render(timeElapsedS) {
+      // Update the necessary passes for rendering and post-processing effects
+      // Swap buffers as needed during rendering
       this.csm_.update(this.camera_.matrix);
 
       this.opaquePass_.clearColor = new THREE.Color(0x000000);
@@ -313,8 +300,9 @@ export const threejs_component = (() => {
       this.gammaPass_.renderToScreen = true;
       this.gammaPass_.render(this.threejs_, this.writeBuffer_, this.readBuffer_, timeElapsedS, false);
     }
-
+        // Update the position of the sun and the sky based on the player's position
     Update(timeElapsed) {
+      // Get the player's position and update the sun and sky accordingly
       const player = this.FindEntity('player');
       if (!player) {
         return;
