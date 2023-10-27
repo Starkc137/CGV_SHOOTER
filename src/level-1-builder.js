@@ -26,16 +26,20 @@ export const level_1_builder = (() => {
 
       const countdownEl = document.getElementById('countdown');
 
-      setInterval(updateCountdown, 1000);
+      setInterval(function () {updateCountdown(self.paused)}, 1000);
 
-      function updateCountdown () {
+      function updateCountdown (_paused) {
         const minutes = Math.floor(time / 60);
         let seconds = time % 60;
 
-        seconds = seconds < 10 ? '0' + seconds : seconds;
+        if(!_paused){
+          seconds = seconds < 10 ? '0' + seconds : seconds;
 
-        countdownEl.innerHTML = `${minutes}:${seconds}`;
-        time--;
+          countdownEl.innerHTML = `${minutes}:${seconds}`;
+          time--;
+        }else{
+          countdownEl.innerHTML = `${minutes}:${seconds}`;
+        }
         if (time < 0) {
           time = 0;
         
